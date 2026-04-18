@@ -5,6 +5,7 @@
 // + recent-looks strip. Layout variant switched via ?layout=editorial|grid
 // (default 'editorial'). Router replaces the source's onNav prop.
 
+import { Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Icon } from '@/components/Icon';
 import { MOCK, getClient } from '@/lib/mock';
@@ -14,6 +15,14 @@ import { NewClientCard } from '@/components/dashboard/NewClientCard';
 import { RecentLookCard } from '@/components/dashboard/RecentLookCard';
 
 export default function Dashboard() {
+  return (
+    <Suspense fallback={null}>
+      <DashboardInner />
+    </Suspense>
+  );
+}
+
+function DashboardInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const layoutParam = searchParams.get('layout');

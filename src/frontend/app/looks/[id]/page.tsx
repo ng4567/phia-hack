@@ -4,7 +4,7 @@
 // Direct port of result.jsx:1–46. Variant (sideBySide|stacked) comes from
 // the `?layout=` URL param; router replaces the source's onNav prop.
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { getLook, getClient, lookTotals } from '@/lib/mock';
 import type { Garment } from '@/lib/mock';
@@ -16,6 +16,14 @@ import { SwapPanel } from '@/components/result/SwapPanel';
 import { LookHistoryPanel } from '@/components/result/LookHistoryPanel';
 
 export default function LookResult() {
+  return (
+    <Suspense fallback={null}>
+      <LookResultInner />
+    </Suspense>
+  );
+}
+
+function LookResultInner() {
   const router = useRouter();
   const { id: lookId } = useParams<{ id: string }>();
   const searchParams = useSearchParams();
