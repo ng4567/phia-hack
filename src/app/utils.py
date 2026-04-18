@@ -1,6 +1,10 @@
 import asyncio
+import hashlib
+import json
 import os
+import sqlite3
 import uuid
+from contextlib import closing
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -9,6 +13,147 @@ from typing import Any, Optional
 import fal_client
 
 FAL_TRYON_MODEL = "fal-ai/fashn/tryon/v1.6"
+CACHE_DB_ENV = "TRYON_CACHE_DB_PATH"
+
+
+def _cache_db_path() -> Path:
+    default_path = Path(__file__).resolve().parents[2] / ".cache" / "tryon-cache.sqlite3"
+    return Path(os.environ.get(CACHE_DB_ENV, str(default_path)))
+
+
+def _ensure_cache_schema() -> None:
+    db_path = _cache_db_path()
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+    with closing(sqlite3.connect(db_path)) as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS tryon_cache (
+                cache_key TEXT PRIMARY KEY,
+                person_hash TEXT NOT NULL,
+                clothes_hash TEXT NOT NULL,
+                category TEXT NOT NULL,
+                mode TEXT NOT NULL,
+                outputs_json TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            )
+            """
+        )
+        conn.commit()
+
+
+def _file_sha256(path: str) -> str:
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def _cache_key(
+    person_hash: str,
+    clothes_hash: str,
+    *,
+    category: str,
+    mode: str,
+) -> str:
+    raw = f"{person_hash}:{clothes_hash}:{category}:{mode}".encode("utf-8")
+    return hashlib.sha256(raw).hexdigest()
+
+
+def get_cached_tryon_result(
+    person_path: str,
+    clothes_path: str,
+    *,
+    category: str = "auto",
+    mode: str = "balanced",
+) -> list[str] | None:
+    _ensure_cache_schema()
+    person_hash = _file_sha256(person_path)
+    clothes_hash = _file_sha256(clothes_path)
+    key = _cache_key(person_hash, clothes_hash, category=category, mode=mode)
+    with closing(sqlite3.connect(_cache_db_path())) as conn:
+        row = conn.execute(
+            "SELECT outputs_json FROM tryon_cache WHERE cache_key = ?",
+            (key,),
+        ).fetchone()
+    if row is None:
+        return None
+    outputs = json.loads(row[0])
+    if not isinstance(outputs, list):
+        return None
+    return [str(item) for item in outputs]
+
+
+def store_tryon_result(
+    person_path: str,
+    clothes_path: str,
+    outputs: list[str],
+    *,
+    category: str = "auto",
+    mode: str = "balanced",
+) -> None:
+    _ensure_cache_schema()
+    person_hash = _file_sha256(person_path)
+    clothes_hash = _file_sha256(clothes_path)
+    key = _cache_key(person_hash, clothes_hash, category=category, mode=mode)
+    with closing(sqlite3.connect(_cache_db_path())) as conn:
+        conn.execute(
+            """
+            INSERT INTO tryon_cache (
+                cache_key, person_hash, clothes_hash, category, mode, outputs_json, created_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(cache_key) DO UPDATE SET
+                outputs_json = excluded.outputs_json,
+                created_at = excluded.created_at
+            """,
+            (
+                key,
+                person_hash,
+                clothes_hash,
+                category,
+                mode,
+                json.dumps(outputs),
+                datetime.now(timezone.utc).isoformat(),
+            ),
+        )
+        conn.commit()
+
+
+async def virtual_tryon_cached(
+    person_path: str,
+    clothes_path: str,
+    *,
+    category: str = "auto",
+    mode: str = "balanced",
+    poll_interval: float = 2.0,
+    timeout: float = 180.0,
+) -> tuple[list[str], bool]:
+    cached = get_cached_tryon_result(
+        person_path,
+        clothes_path,
+        category=category,
+        mode=mode,
+    )
+    if cached is not None:
+        return cached, True
+
+    outputs = await virtual_tryon(
+        person_path,
+        clothes_path,
+        category=category,
+        mode=mode,
+        poll_interval=poll_interval,
+        timeout=timeout,
+    )
+    store_tryon_result(
+        person_path,
+        clothes_path,
+        outputs,
+        category=category,
+        mode=mode,
+    )
+    return outputs, False
 
 
 # ---------------------------------------------------------------------------
@@ -128,14 +273,30 @@ async def virtual_tryon(
     if not garment_image_path.is_file():
         raise FileNotFoundError(f"Image not found: {clothes_path}")
 
-    arguments: dict[str, Any] = {
-        "model_image": fal_client.encode_file(str(model_image_path)),
-        "garment_image": fal_client.encode_file(str(garment_image_path)),
-        "category": category,
-        "mode": mode,
-    }
+    try:
+        # Upload images first and pass URLs to avoid request-size limits from
+        # embedding full files as base64 data URLs in the queue submission.
+        model_image_url, garment_image_url = await asyncio.gather(
+            fal_client.upload_file_async(str(model_image_path)),
+            fal_client.upload_file_async(str(garment_image_path)),
+        )
+        arguments: dict[str, Any] = {
+            "model_image": model_image_url,
+            "garment_image": garment_image_url,
+            "category": category,
+            "mode": mode,
+        }
 
-    response = await fal_client.submit_async(FAL_TRYON_MODEL, arguments=arguments)
+        response = await fal_client.submit_async(FAL_TRYON_MODEL, arguments=arguments)
+    except fal_client.FalClientHTTPError as exc:
+        if exc.status_code == 413:
+            raise RuntimeError(
+                "fal request payload too large. Input images are too big for inline submission. "
+                "Try smaller or compressed images."
+            ) from exc
+        raise RuntimeError(f"fal request failed ({exc.status_code}): {exc}") from exc
+    except fal_client.FalClientError as exc:
+        raise RuntimeError(f"fal request failed: {exc}") from exc
 
     loop = asyncio.get_running_loop()
     deadline = loop.time() + timeout

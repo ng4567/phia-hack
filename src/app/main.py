@@ -7,7 +7,7 @@ from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.utils import virtual_tryon
+from app.utils import virtual_tryon_cached
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 load_dotenv(REPO_ROOT / ".env")
@@ -31,10 +31,13 @@ async def api_tryon(
         person_path.write_bytes(await person.read())
         clothes_path.write_bytes(await clothes.read())
         try:
-            outputs = await virtual_tryon(str(person_path), str(clothes_path))
+            outputs, cached = await virtual_tryon_cached(
+                str(person_path),
+                str(clothes_path),
+            )
         except (RuntimeError, TimeoutError) as e:
             raise HTTPException(status_code=502, detail=str(e))
-        return {"outputs": outputs}
+        return {"outputs": outputs, "cached": cached}
     finally:
         for p in (person_path, clothes_path):
             try:

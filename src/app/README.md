@@ -13,3 +13,13 @@ The stylist class links a stylist to all the clients they manage. It should be a
 The client class also links the client back to the stylist and contains all the designs the stylist made for them.
 
 Store these classes inside utils.py
+
+## Try-on cache
+
+The app now caches try-on outputs by input combination (person image bytes + garment image bytes + mode/category).
+
+- Cache backend: SQLite
+- Default path: `.cache/tryon-cache.sqlite3` at repo root
+- Override path: set `TRYON_CACHE_DB_PATH=/custom/path/cache.sqlite3`
+
+When the same input combination is uploaded again, the backend returns cached outputs and skips the fal API call.
