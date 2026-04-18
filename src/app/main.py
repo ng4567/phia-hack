@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
 
-import httpx
 import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, HTTPException, UploadFile
@@ -10,7 +9,8 @@ from fastapi.staticfiles import StaticFiles
 
 from app.utils import virtual_tryon
 
-load_dotenv()
+REPO_ROOT = Path(__file__).resolve().parents[2]
+load_dotenv(REPO_ROOT / ".env")
 
 STATIC_DIR = Path(__file__).parent / "static"
 
@@ -34,11 +34,6 @@ async def api_tryon(
             outputs = await virtual_tryon(str(person_path), str(clothes_path))
         except (RuntimeError, TimeoutError) as e:
             raise HTTPException(status_code=502, detail=str(e))
-        except httpx.HTTPStatusError as e:
-            raise HTTPException(
-                status_code=502,
-                detail=f"FASHN API error {e.response.status_code}: {e.response.text}",
-            )
         return {"outputs": outputs}
     finally:
         for p in (person_path, clothes_path):
