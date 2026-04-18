@@ -13,7 +13,18 @@ import { Icon } from '@/components/Icon';
 import { SavingsBadge } from '@/components/SavingsBadge';
 import { GenerateOverlay } from '@/components/builder/GenerateOverlay';
 
-const BACKEND_BASE_URL = (process.env.NEXT_PUBLIC_TRYON_BACKEND_URL ?? 'http://127.0.0.1:8000').replace(/\/+$/, '');
+function getBackendBaseUrl(): string {
+  const configured = process.env.NEXT_PUBLIC_TRYON_BACKEND_URL?.trim();
+  if (configured) {
+    return new URL(configured).toString().replace(/\/+$/, '');
+  }
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('NEXT_PUBLIC_TRYON_BACKEND_URL must be set in production.');
+  }
+  return 'http://127.0.0.1:8000';
+}
+
+const BACKEND_BASE_URL = getBackendBaseUrl();
 const PHOEBE_CLIENT_ID = 'sarah';
 const PHOEBE_LOOK_ID = 'look-sarah-1';
 const RED_AIKO_SILK_SLIP_DRESS_ID = 'g1';
@@ -79,7 +90,8 @@ export default function LookBuilder() {
     }, 1100);
 
     try {
-      if (window.location.origin.replace(/\/+$/, '') === BACKEND_BASE_URL) {
+      const backendOrigin = new URL(BACKEND_BASE_URL).origin;
+      if (window.location.origin === backendOrigin) {
         throw new Error(
           'Set NEXT_PUBLIC_TRYON_BACKEND_URL to your backend address (different from frontend).',
         );
@@ -108,7 +120,15 @@ export default function LookBuilder() {
         method: 'POST',
         body: formData,
       });
-      const payload = await response.json().catch(() => ({} as { detail?: string; outputs?: string[] }));
+      const responseText = await response.text();
+      let payload: { detail?: string; outputs?: string[] } = {};
+      if (responseText) {
+        try {
+          payload = JSON.parse(responseText) as { detail?: string; outputs?: string[] };
+        } catch {
+          payload = { detail: responseText };
+        }
+      }
       if (!response.ok) {
         throw new Error(payload.detail || 'Try-on request failed.');
       }

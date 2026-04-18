@@ -16,20 +16,26 @@ load_dotenv(REPO_ROOT / ".env")
 STATIC_DIR = Path(__file__).parent / "static"
 
 app = FastAPI(title="Style-Me Virtual Try-On")
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
+frontend_origins_env = os.environ.get("FRONTEND_ORIGINS")
+if frontend_origins_env:
+    frontend_origins = [
         origin.strip()
-        for origin in os.environ.get(
-            "FRONTEND_ORIGINS",
-            "http://localhost:3000,http://127.0.0.1:3000",
-        ).split(",")
+        for origin in frontend_origins_env.split(",")
         if origin.strip()
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+    ]
+elif os.environ.get("ENV", "development").lower() == "development":
+    frontend_origins = ["http://localhost:3000", "http://127.0.0.1:3000"]
+else:
+    frontend_origins = []
+
+if frontend_origins:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=frontend_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 
 @app.post("/api/tryon")

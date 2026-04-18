@@ -15,4 +15,4 @@ Frontend would like:
 
 ## Try-on backend URL
 
-Set `NEXT_PUBLIC_TRYON_BACKEND_URL` to your FastAPI backend address (for example `http://127.0.0.1:8000`), which should be different from the frontend address.
+Set `NEXT_PUBLIC_TRYON_BACKEND_URL` to your FastAPI backend address (for example `http://127.0.0.1:8000`), which should be different from the frontend address. This variable is required in production.
