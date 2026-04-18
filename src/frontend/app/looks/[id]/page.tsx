@@ -28,6 +28,7 @@ function LookResultInner() {
   const { id: lookId } = useParams<{ id: string }>();
   const searchParams = useSearchParams();
   const layoutParam = searchParams.get('layout');
+  const generatedTryOnImageUrl = searchParams.get('tryOnImageUrl');
   const isStacked = layoutParam === 'stacked';
 
   const look = getLook(lookId);
@@ -39,13 +40,16 @@ function LookResultInner() {
   if (!look) return null;
   const client = getClient(look.clientId);
   if (!client) return null;
-  const totals = lookTotals(look);
+  const resolvedLook = generatedTryOnImageUrl
+    ? { ...look, tryOnImageUrl: generatedTryOnImageUrl }
+    : look;
+  const totals = lookTotals(resolvedLook);
 
   // onItem is a no-op — no item-detail screen in our scope.
   const onItem = () => {};
 
   return (
-    <div className="screen result" data-screen-label={`04 Look · ${look.occasion}`}>
+    <div className="screen result" data-screen-label={`04 Look · ${resolvedLook.occasion}`}>
       <div className="res-shell">
         {/* Subhead */}
         <div className="res-head">
@@ -56,7 +60,12 @@ function LookResultInner() {
             <button className="btn btn-ghost" onClick={() => setShowHistory(true)}>
               History
             </button>
-            <button className="btn btn-ghost" onClick={() => router.push(`/looks/${lookId}/view`)}>
+            <button
+              className="btn btn-ghost"
+              onClick={() => router.push(
+                `/looks/${lookId}/view${generatedTryOnImageUrl ? `?tryOnImageUrl=${encodeURIComponent(generatedTryOnImageUrl)}` : ''}`,
+              )}
+            >
               <Icon.user /> Preview client view
             </button>
             <button className="btn btn-primary" onClick={() => setShowShare(true)}>
@@ -66,10 +75,10 @@ function LookResultInner() {
         </div>
 
         {isStacked ? (
-          <StackedResult look={look} client={client} totals={totals} />
+          <StackedResult look={resolvedLook} client={client} totals={totals} />
         ) : (
           <SideBySideResult
-            look={look}
+            look={resolvedLook}
             client={client}
             totals={totals}
             hoverIdx={hoverIdx}

@@ -4,6 +4,11 @@ Start backend with:
 uv run dev
 ```
 
+Set environment variables in `.env` (repo root):
+
+- `FAL_KEY=...`
+- `FRONTEND_ORIGINS=http://localhost:3000,http://127.0.0.1:3000`
+
 # Stylist Dashboard Feature
 
 Stylists should be able to manage a portfolio of clients using Phia.

@@ -6,7 +6,7 @@
 // renders its own lighter .cv-top bar. Router replaces the source's onNav.
 
 import { useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { MOCK, getLook, getClient, lookTotals } from '@/lib/mock';
 import { fmt, cx } from '@/lib/utils';
 import { Icon } from '@/components/Icon';
@@ -14,6 +14,8 @@ import { Icon } from '@/components/Icon';
 export default function ClientView() {
   const router = useRouter();
   const { id: lookId } = useParams<{ id: string }>();
+  const searchParams = useSearchParams();
+  const generatedTryOnImageUrl = searchParams.get('tryOnImageUrl');
 
   const look = getLook(lookId);
   const [reactions, setReactions] = useState<Record<string, 'love' | null>>({});
@@ -24,9 +26,12 @@ export default function ClientView() {
   }
 
   if (!look) return null;
+  const resolvedLook = generatedTryOnImageUrl
+    ? { ...look, tryOnImageUrl: generatedTryOnImageUrl }
+    : look;
   const client = getClient(look.clientId);
   if (!client) return null;
-  const totals = lookTotals(look);
+  const totals = lookTotals(resolvedLook);
 
   return (
     <div className="screen cv" data-screen-label="05 Client view">
@@ -36,7 +41,12 @@ export default function ClientView() {
           <div className="wordmark" style={{ fontSize: 24 }}>phia</div>
           <div className="micro" style={{ marginTop: 6, color: 'var(--ink-4)' }}>for you</div>
           <div style={{ flex: 1 }} />
-          <button className="btn btn-ghost" onClick={() => router.push(`/looks/${lookId}`)}>
+          <button
+            className="btn btn-ghost"
+            onClick={() => router.push(
+              `/looks/${lookId}${generatedTryOnImageUrl ? `?tryOnImageUrl=${encodeURIComponent(generatedTryOnImageUrl)}` : ''}`,
+            )}
+          >
             <Icon.back /> Back to stylist view
           </button>
         </div>
@@ -51,13 +61,13 @@ export default function ClientView() {
               <div style={{ fontSize: 14, color: 'var(--ink-2)', marginTop: 2 }}>Here&apos;s your look for the rooftop, {client.name.split(' ')[0]}.</div>
             </div>
           </div>
-          <h1 className="serif-italic cv-title">{look.occasion}</h1>
-          <div className="micro" style={{ color: 'var(--ink-3)' }}>{look.location} · {totals.garments.length} pieces · saved {fmt(totals.savings)}</div>
+          <h1 className="serif-italic cv-title">{resolvedLook.occasion}</h1>
+          <div className="micro" style={{ color: 'var(--ink-3)' }}>{resolvedLook.location} · {totals.garments.length} pieces · saved {fmt(totals.savings)}</div>
         </div>
 
         <div className="cv-grid">
           <div className="cv-photo-wrap">
-            <div className="cv-photo" style={{ backgroundImage: `url(${look.tryOnImageUrl || look.coverUrl})` }}>
+            <div className="cv-photo" style={{ backgroundImage: `url(${resolvedLook.tryOnImageUrl || resolvedLook.coverUrl})` }}>
               <div className="cv-badge">
                 <span className="micro">You, in this look</span>
               </div>

@@ -12,3 +12,7 @@ Frontend would like:
     - view styles on their virtual avatar
 - Client purchase page
     - Purchase the style with Phia
+
+## Try-on backend URL
+
+Set `NEXT_PUBLIC_TRYON_BACKEND_URL` to your FastAPI backend address (for example `http://127.0.0.1:8000`), which should be different from the frontend address.

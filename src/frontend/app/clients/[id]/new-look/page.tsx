@@ -13,6 +13,18 @@ import { Icon } from '@/components/Icon';
 import { SavingsBadge } from '@/components/SavingsBadge';
 import { GenerateOverlay } from '@/components/builder/GenerateOverlay';
 
+const BACKEND_BASE_URL = (process.env.NEXT_PUBLIC_TRYON_BACKEND_URL ?? 'http://127.0.0.1:8000').replace(/\/+$/, '');
+const PHOEBE_CLIENT_ID = 'sarah';
+const PHOEBE_LOOK_ID = 'look-sarah-1';
+const RED_AIKO_SILK_SLIP_DRESS_ID = 'g1';
+
+async function toUploadFile(imageUrl: string, filename: string): Promise<File> {
+  const response = await fetch(imageUrl);
+  if (!response.ok) throw new Error(`Failed to fetch image for upload: ${filename}`);
+  const blob = await response.blob();
+  return new File([blob], filename, { type: blob.type || 'application/octet-stream' });
+}
+
 export default function LookBuilder() {
   const router = useRouter();
   const { id } = useParams<{ id: string }>();
@@ -24,6 +36,7 @@ export default function LookBuilder() {
   const [occasion, setOccasion] = useState('Rooftop engagement party');
   const [generating, setGenerating] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
+  const [generateError, setGenerateError] = useState<string | null>(null);
   const [dragId, setDragId] = useState<string | null>(null);
 
   if (!client) return null;
@@ -56,15 +69,64 @@ export default function LookBuilder() {
     setBoardIds(boardIds.filter((x) => x !== gid));
   }
 
-  function handleGenerate() {
+  async function handleGenerate() {
+    if (!client) return;
+    setGenerateError(null);
     setGenerating(true);
     setLoadingStep(0);
-    const steps = [0, 1, 2, 3];
-    steps.forEach((s, i) => setTimeout(() => setLoadingStep(s), i * 1100));
-    setTimeout(() => {
+    const loadingInterval = window.setInterval(() => {
+      setLoadingStep((step) => Math.min(step + 1, 3));
+    }, 1100);
+
+    try {
+      if (window.location.origin.replace(/\/+$/, '') === BACKEND_BASE_URL) {
+        throw new Error(
+          'Set NEXT_PUBLIC_TRYON_BACKEND_URL to your backend address (different from frontend).',
+        );
+      }
+
+      const dress = getGarment(RED_AIKO_SILK_SLIP_DRESS_ID);
+      if (!dress) throw new Error('Aiko Silk Slip Dress is unavailable.');
+
+      const personImageUrl = client.id === PHOEBE_CLIENT_ID
+        ? `${window.location.origin}/clients/phoebe.png`
+        : new URL(client.photoUrl, window.location.origin).toString();
+      const dressImageUrl = client.id === PHOEBE_CLIENT_ID
+        ? `${window.location.origin}/garments/red-aiko-silk-slip-dress.jpg`
+        : new URL(dress.imageUrl, window.location.origin).toString();
+
+      const [personFile, dressFile] = await Promise.all([
+        toUploadFile(personImageUrl, 'phoebe.png'),
+        toUploadFile(dressImageUrl, 'aiko-silk-slip-dress.jpg'),
+      ]);
+
+      const formData = new FormData();
+      formData.append('person', personFile);
+      formData.append('clothes', dressFile);
+
+      const response = await fetch(`${BACKEND_BASE_URL}/api/tryon`, {
+        method: 'POST',
+        body: formData,
+      });
+      const payload = await response.json().catch(() => ({} as { detail?: string; outputs?: string[] }));
+      if (!response.ok) {
+        throw new Error(payload.detail || 'Try-on request failed.');
+      }
+
+      const outputUrl = payload.outputs?.[0];
+      if (!outputUrl) {
+        throw new Error('Try-on API returned no output image.');
+      }
+
       setGenerating(false);
-      router.push('/looks/look-sarah-1');
-    }, 4800);
+      router.push(`/looks/${PHOEBE_LOOK_ID}?tryOnImageUrl=${encodeURIComponent(outputUrl)}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to generate try-on.';
+      setGenerateError(message);
+      setGenerating(false);
+    } finally {
+      window.clearInterval(loadingInterval);
+    }
   }
 
   return (
@@ -87,11 +149,16 @@ export default function LookBuilder() {
               placeholder="Occasion or prompt — rooftop wedding, July, Charleston"
             />
             <button className="btn btn-ghost" onClick={() => router.push(`/clients/${id}`)}>Save draft</button>
-            <button className="btn btn-primary" onClick={handleGenerate} disabled={boardIds.length === 0}>
+            <button className="btn btn-primary" onClick={() => void handleGenerate()} disabled={boardIds.length === 0 || generating}>
               <Icon.spark /> Generate try-on
             </button>
           </div>
         </div>
+        {generateError && (
+          <div className="micro" style={{ color: '#b00020', marginBottom: 12 }}>
+            {generateError}
+          </div>
+        )}
 
         <div className="builder-grid">
           {/* LEFT: catalog */}
