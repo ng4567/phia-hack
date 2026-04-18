@@ -1,3 +1,6 @@
 .vscode/
 .venv/
 .github/
+.env
+src/phia_hack.egg-info
+src/app/__pycache__
