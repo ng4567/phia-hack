@@ -2,12 +2,81 @@ import asyncio
 import base64
 import mimetypes
 import os
+from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Optional
 
 import httpx
 
 FASHN_API_BASE = "https://api.fashn.ai/v1"
 FASHN_MODEL = "tryon-v1.6"
+
+
+@dataclass
+class Design:
+    """A design created by a stylist for a client.
+
+    Attributes:
+        name: Short descriptive name for this design.
+        clothes_image_path: Local path to the garment image used in the try-on.
+        result_image_urls: URLs of the virtual try-on output images returned by FASHN.
+        description: Optional longer description or notes about the design.
+    """
+
+    name: str
+    clothes_image_path: str
+    result_image_urls: list[str] = field(default_factory=list)
+    description: Optional[str] = None
+
+
+@dataclass
+class Client:
+    """A client in a stylist's portfolio.
+
+    Attributes:
+        name: The client's full name.
+        photo_paths: Paths to images of the client used for virtual try-on.
+        designs: Designs the stylist has created for this client.
+    """
+
+    name: str
+    photo_paths: list[str] = field(default_factory=list)
+    designs: list[Design] = field(default_factory=list)
+
+    def add_design(self, design: Design) -> None:
+        """Append a new design to this client's history."""
+        self.designs.append(design)
+
+
+@dataclass
+class Stylist:
+    """A stylist who manages a portfolio of clients.
+
+    Attributes:
+        name: The stylist's full name.
+        clients: The list of clients in this stylist's portfolio.
+    """
+
+    name: str
+    clients: list[Client] = field(default_factory=list)
+
+    def add_client(self, client: Client) -> None:
+        """Add a client to the portfolio.
+
+        Raises:
+            ValueError: If a client with the same name already exists.
+        """
+        if self.get_client(client.name) is not None:
+            raise ValueError(f"A client named '{client.name}' is already in the portfolio.")
+        self.clients.append(client)
+
+    def get_client(self, name: str) -> Optional[Client]:
+        """Return the first client whose name matches (case-insensitive), or None if not found."""
+        name_lower = name.lower()
+        for client in self.clients:
+            if client.name.lower() == name_lower:
+                return client
+        return None
 
 
 def _file_to_data_uri(path: str) -> str:
