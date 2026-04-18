@@ -2,12 +2,103 @@ import asyncio
 import base64
 import mimetypes
 import os
+from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Optional
 
 import httpx
 
 FASHN_API_BASE = "https://api.fashn.ai/v1"
 FASHN_MODEL = "tryon-v1.6"
+
+
+# ---------------------------------------------------------------------------
+# Portfolio data model
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class Design:
+    """A single try-on design created by a stylist for a client.
+
+    Attributes:
+        output_urls: One or more image URLs returned by the virtual try-on API.
+        garment_image_path: Local path to the garment/clothing image used.
+        notes: Optional free-text notes the stylist added about this design.
+    """
+
+    output_urls: list[str]
+    garment_image_path: str
+    notes: Optional[str] = None
+
+
+@dataclass
+class Client:
+    """A client in a stylist's portfolio.
+
+    Attributes:
+        name: Display name of the client.
+        images: Paths to photos of the client used as model images for
+            virtual try-on.
+        designs: Try-on designs the stylist has created for this client.
+        client_id: Optional unique identifier for the client.
+    """
+
+    name: str
+    images: list[str] = field(default_factory=list)
+    designs: list[Design] = field(default_factory=list)
+    client_id: Optional[str] = None
+
+    def add_image(self, image_path: str) -> None:
+        """Add a client photo to be used as a model image for try-on."""
+        self.images.append(image_path)
+
+    def add_design(self, design: Design) -> None:
+        """Record a new design that the stylist created for this client."""
+        self.designs.append(design)
+
+
+@dataclass
+class Stylist:
+    """A stylist who maintains a portfolio of clients.
+
+    Attributes:
+        name: Display name of the stylist.
+        portfolio: Clients managed by this stylist, keyed by client name.
+        stylist_id: Optional unique identifier for the stylist.
+    """
+
+    name: str
+    portfolio: dict[str, Client] = field(default_factory=dict)
+    stylist_id: Optional[str] = None
+
+    def add_client(self, client: Client) -> None:
+        """Add a client to this stylist's portfolio.
+
+        Raises:
+            ValueError: If a client with the same name already exists in the
+                portfolio.  Use ``remove_client`` first if you want to replace
+                an existing entry.
+        """
+        if client.name in self.portfolio:
+            raise ValueError(
+                f"A client named '{client.name}' already exists in the portfolio."
+            )
+        self.portfolio[client.name] = client
+
+    def get_client(self, name: str) -> Optional[Client]:
+        """Return the client with the given name, or None if not found."""
+        return self.portfolio.get(name)
+
+    def remove_client(self, name: str) -> None:
+        """Remove a client from the portfolio by name.
+
+        Raises:
+            KeyError: If no client with that name exists in the portfolio.
+        """
+        if name not in self.portfolio:
+            raise KeyError(f"Client '{name}' not found in portfolio.")
+        del self.portfolio[name]
 
 
 def _file_to_data_uri(path: str) -> str:
