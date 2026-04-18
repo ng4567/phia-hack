@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Instrument_Serif, Inter } from 'next/font/google';
 import './globals.css';
+import { TopBarFrame } from '@/components/TopBarFrame';
 
 const serif = Instrument_Serif({
   weight: '400',
@@ -23,7 +24,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${serif.variable} ${sans.variable}`}>
-      <body>{children}</body>
+      <body>
+        <TopBarFrame>{children}</TopBarFrame>
+      </body>
     </html>
   );
 }
