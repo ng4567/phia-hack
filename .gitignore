@@ -3,4 +3,4 @@
 .github/
 .env
 src/phia_hack.egg-info
-src/app/__pycache__
+__pycache__/
