@@ -4,12 +4,18 @@ import { notFound } from 'next/navigation';
 import { Plus } from 'lucide-react';
 import { AppShell } from '@/components/shared/AppShell';
 import { EyebrowLabel } from '@/components/shared/EyebrowLabel';
-import { clientById } from '@/lib/mock-data';
+import { clients, clientById } from '@/lib/mock-data';
 import { formatDaysAgo } from '@/lib/utils';
 
 type PageProps = {
   params: Promise<{ clientId: string }>;
 };
+
+export function generateStaticParams() {
+  return clients.map((client) => ({ clientId: client.id }));
+}
+
+export const dynamicParams = false;
 
 export default async function ClientDetailPage({ params }: PageProps) {
   const { clientId } = await params;

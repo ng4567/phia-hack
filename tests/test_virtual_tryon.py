@@ -2,61 +2,29 @@ import os
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 
-from app.utils import virtual_tryon
+import fal_client
 
-
-class _FakeResponse:
-    def __init__(self, payload: dict):
-        self._payload = payload
-
-    def raise_for_status(self) -> None:
-        return None
-
-    def json(self) -> dict:
-        return self._payload
+from app import utils
 
 
-class _FakeAsyncClient:
-    def __init__(self, *args, **kwargs):
-        self.post_calls = []
-        self.get_calls = []
-        self._status_index = 0
+class _FakeHandle:
+    async def iter_events(self, with_logs: bool = True):
+        yield fal_client.Queued(position=0)
+        yield fal_client.InProgress(logs=[{"message": "working"}])
+        yield fal_client.Completed(logs=[{"message": "done"}], metrics={})
 
-    async def __aenter__(self):
-        return self
-
-    async def __aexit__(self, exc_type, exc, tb):
-        return False
-
-    async def post(self, url: str, *, json: dict, headers: dict):
-        self.post_calls.append({"url": url, "json": json, "headers": headers})
-        return _FakeResponse(
-            {
-                "id": "123a87r9-4129-4bb3-be18-9c9fb5bd7fc1-u1",
-                "error": None,
-            }
-        )
-
-    async def get(self, url: str, *, headers: dict):
-        self.get_calls.append({"url": url, "headers": headers})
-        statuses = [
-            {"id": "123a87r9-4129-4bb3-be18-9c9fb5bd7fc1-u1", "status": "processing", "error": None},
-            {
-                "id": "123a87r9-4129-4bb3-be18-9c9fb5bd7fc1-u1",
-                "status": "completed",
-                "output": ["https://cdn.fashn.ai/123a87r9-4129-4bb3-be18-9c9fb5bd7fc1-u1/output_0.png"],
-                "error": None,
-            },
-        ]
-        idx = min(self._status_index, len(statuses) - 1)
-        self._status_index += 1
-        return _FakeResponse(statuses[idx])
+    async def get(self) -> dict:
+        return {
+            "images": [
+                {"url": "https://cdn.fashn.ai/123a87r9-4129-4bb3-be18-9c9fb5bd7fc1-u1/output_0.png"}
+            ]
+        }
 
 
 class VirtualTryOnTests(unittest.IsolatedAsyncioTestCase):
-    async def test_virtual_tryon_calls_fashn_run_and_status_endpoints(self):
+    async def test_virtual_tryon_uploads_files_and_submits_urls(self):
         with tempfile.TemporaryDirectory() as tmp:
             tmp_dir = Path(tmp)
             person = tmp_dir / "nikhil.png"
@@ -64,33 +32,66 @@ class VirtualTryOnTests(unittest.IsolatedAsyncioTestCase):
             person.write_bytes(b"fake-person-image")
             clothes.write_bytes(b"fake-clothes-image")
 
-            fake_client = _FakeAsyncClient()
+            upload_mock = AsyncMock(
+                side_effect=[
+                    "https://cdn.fal.ai/model.png",
+                    "https://cdn.fal.ai/garment.png",
+                ]
+            )
+            submit_mock = AsyncMock(return_value=_FakeHandle())
 
-            with patch.dict(os.environ, {"FASHN-API-KEY": "test-key"}, clear=False):
-                with patch("app.utils.httpx.AsyncClient", return_value=fake_client):
-                    outputs = await virtual_tryon(
-                        str(person),
-                        str(clothes),
-                        poll_interval=0,
-                        timeout=5,
-                    )
+            with patch.dict(os.environ, {"FAL_KEY": "test-key"}, clear=False):
+                with patch("app.utils.fal_client.upload_file_async", upload_mock):
+                    with patch("app.utils.fal_client.submit_async", submit_mock):
+                        outputs = await utils.virtual_tryon(
+                            str(person),
+                            str(clothes),
+                            poll_interval=0,
+                            timeout=5,
+                        )
 
         self.assertEqual(
             outputs,
             ["https://cdn.fashn.ai/123a87r9-4129-4bb3-be18-9c9fb5bd7fc1-u1/output_0.png"],
         )
-        self.assertEqual(len(fake_client.post_calls), 1)
-        self.assertGreaterEqual(len(fake_client.get_calls), 1)
+        self.assertEqual(upload_mock.await_count, 2)
+        submit_mock.assert_awaited_once()
 
-        post_call = fake_client.post_calls[0]
-        self.assertEqual(post_call["url"], "https://api.fashn.ai/v1/run")
-        self.assertEqual(post_call["headers"]["Authorization"], "Bearer test-key")
-        self.assertEqual(post_call["json"]["model_name"], "tryon-v1.6")
-        self.assertTrue(post_call["json"]["inputs"]["model_image"].startswith("data:image/png;base64,"))
-        self.assertTrue(post_call["json"]["inputs"]["garment_image"].startswith("data:image/png;base64,"))
+        self.assertEqual(submit_mock.await_args.args[0], utils.FAL_TRYON_MODEL)
+        submitted_args = submit_mock.await_args.kwargs["arguments"]
+        self.assertEqual(submitted_args["model_image"], "https://cdn.fal.ai/model.png")
+        self.assertEqual(submitted_args["garment_image"], "https://cdn.fal.ai/garment.png")
+        self.assertEqual(submitted_args["category"], "auto")
+        self.assertEqual(submitted_args["mode"], "balanced")
 
-        status_call = fake_client.get_calls[-1]
-        self.assertEqual(
-            status_call["url"],
-            "https://api.fashn.ai/v1/status/123a87r9-4129-4bb3-be18-9c9fb5bd7fc1-u1",
-        )
+    async def test_virtual_tryon_cached_reuses_previous_outputs(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_dir = Path(tmp)
+            cache_db = tmp_dir / "tryon-cache.sqlite3"
+            person = tmp_dir / "nikhil.png"
+            clothes = tmp_dir / "clothes.png"
+            person.write_bytes(b"same-person-image")
+            clothes.write_bytes(b"same-clothes-image")
+
+            run_mock = AsyncMock(return_value=["https://cdn.fashn.ai/cached/output_0.png"])
+
+            with patch.dict(
+                os.environ,
+                {"FAL_KEY": "test-key", "TRYON_CACHE_DB_PATH": str(cache_db)},
+                clear=False,
+            ):
+                with patch("app.utils.virtual_tryon", run_mock):
+                    first_outputs, first_cached = await utils.virtual_tryon_cached(
+                        str(person),
+                        str(clothes),
+                    )
+                    second_outputs, second_cached = await utils.virtual_tryon_cached(
+                        str(person),
+                        str(clothes),
+                    )
+
+        self.assertEqual(first_outputs, ["https://cdn.fashn.ai/cached/output_0.png"])
+        self.assertFalse(first_cached)
+        self.assertEqual(second_outputs, ["https://cdn.fashn.ai/cached/output_0.png"])
+        self.assertTrue(second_cached)
+        run_mock.assert_awaited_once()

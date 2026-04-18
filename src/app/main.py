@@ -1,10 +1,10 @@
 import os
+import subprocess
 from pathlib import Path
 
 import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, HTTPException, UploadFile
-from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.utils import virtual_tryon_cached
@@ -12,7 +12,8 @@ from app.utils import virtual_tryon_cached
 REPO_ROOT = Path(__file__).resolve().parents[2]
 load_dotenv(REPO_ROOT / ".env")
 
-STATIC_DIR = Path(__file__).parent / "static"
+FRONTEND_DIR = REPO_ROOT / "src" / "frontend"
+FRONTEND_DIST_DIR = FRONTEND_DIR / "out"
 
 app = FastAPI(title="Style-Me Virtual Try-On")
 
@@ -46,19 +47,36 @@ async def api_tryon(
                 pass
 
 
-if STATIC_DIR.is_dir():
-    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
-
-
-@app.get("/")
-async def index():
-    index_path = STATIC_DIR / "index.html"
+def _ensure_frontend_build() -> None:
+    index_path = FRONTEND_DIST_DIR / "index.html"
     if index_path.is_file():
-        return FileResponse(index_path)
-    return {"message": "Hello, world"}
+        return
+
+    build_cmd = ["npm", "run", "build"]
+    try:
+        subprocess.run(
+            build_cmd,
+            cwd=FRONTEND_DIR,
+            check=True,
+        )
+    except FileNotFoundError as exc:
+        raise RuntimeError("npm is required to build the frontend") from exc
+    except subprocess.CalledProcessError as exc:
+        raise RuntimeError("Frontend build failed") from exc
+
+    if not index_path.is_file():
+        raise RuntimeError("Frontend build did not produce out/index.html")
+
+
+app.mount(
+    "/",
+    StaticFiles(directory=FRONTEND_DIST_DIR, html=True, check_dir=False),
+    name="frontend",
+)
 
 
 def main():
+    _ensure_frontend_build()
     uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
 
 
