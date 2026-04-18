@@ -117,26 +117,24 @@ export const MOCK: MockShape = {
   clients: [
     {
       id: 'sarah',
-      name: 'Sarah Chen',
-      location: 'Brooklyn, NY',
-      photoUrl:
-        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&h=1100&fit=crop&crop=faces',
-      sizing: { top: 'S', bottom: '26', shoe: '7.5' },
+      name: 'Phoebe Gates',
+      location: 'New York, NY',
+      photoUrl: '/clients/phoebe.png',
+      sizing: { top: 'XS', bottom: '24', shoe: '7' },
       notes:
-        'Downtown creative. Loves tailored pieces, neutrals with one unexpected color. Avoids synthetic fabrics.',
+        'Romantic-feminine with a resale-first rule. Lives in Oscar de la Renta, Miu Miu, Chloé — ribbons, bows, tea-length florals. Mix designer with vintage; never new fast-fashion. Press days lean polished.',
       looksCount: 12,
       lastUpdated: '2 days ago',
       accent: '#C8B89E',
     },
     {
       id: 'maya',
-      name: 'Maya Rodriguez',
-      location: 'Silver Lake, LA',
-      photoUrl:
-        'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=800&h=1100&fit=crop&crop=faces',
-      sizing: { top: 'M', bottom: '28', shoe: '8' },
+      name: 'Sophia Kianni',
+      location: 'New York, NY',
+      photoUrl: '/clients/sophia.png',
+      sizing: { top: 'XS', bottom: '25', shoe: '7.5' },
       notes:
-        "Laid-back but intentional. Vintage Levi's, worn-in leather, anything with a western nod.",
+        'Modern minimalist with an editorial streak. Sharp suiting for UN and climate panels; saturated column dresses for press. Loves a clean line, a strong shoulder, and jewel tones — emerald, oxblood, cobalt.',
       looksCount: 7,
       lastUpdated: '5 days ago',
       accent: '#B59B7C',

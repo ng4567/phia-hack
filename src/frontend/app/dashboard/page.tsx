@@ -44,7 +44,7 @@ function DashboardInner() {
               <span style={{ color: 'var(--accent)' }}>{stylist.name.split(' ')[0]}</span>.
             </h1>
             <p className="hero-sub">
-              Two clients active this week. Sarah&apos;s rooftop party look is ready to share.
+              Two clients active this week. Phoebe&apos;s rooftop party look is ready to share.
             </p>
             <div className="row gap-12" style={{ marginTop: 20 }}>
               <button className="btn btn-primary">

@@ -99,9 +99,9 @@ export default function StylistPortfolio() {
             <h2 className="serif pf-h2" style={{ fontSize: 40 }}>From her clients</h2>
           </div>
           <div className="pf-quotes">
-            <Quote author="Sarah C." role="Brooklyn · client since 2024"
+            <Quote author="Phoebe G." role="New York · client since 2024"
               text="Jess built me a rooftop-party look that came in under $500 for the whole outfit. The slip dress alone retails at $300. I send her every wedding invite now." />
-            <Quote author="Maya R." role="Silver Lake · client since 2023"
+            <Quote author="Sophia K." role="New York · client since 2023"
               text="Every look she makes feels like mine, just a version of me I didn't know how to put together. And phia's pricing is the quiet magic." />
             <Quote author="Olivia B." role="London · client since 2025"
               text="Booked her for a work trip. Two looks, five days, three cities. I wore everything. Nothing felt like styling — it felt like packing smarter." />
