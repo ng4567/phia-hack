@@ -1,0 +1,16 @@
+# env / secrets (FAL_KEY etc.)
+.env
+.env.local
+.env.*.local
+
+# local tooling caches
+.playwright-mcp/
+.DS_Store
+
+# demo verification screenshots (not committed; regenerated on demand)
+phia-homepage.png
+phia-app-*.png
+
+# node / next defaults — frontend has its own .gitignore too
+node_modules/
+.next/
