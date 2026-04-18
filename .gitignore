@@ -4,3 +4,4 @@
 .env
 src/phia_hack.egg-info
 __pycache__/
+.cache/
