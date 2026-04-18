@@ -2,12 +2,110 @@ import asyncio
 import base64
 import mimetypes
 import os
+import uuid
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any, Optional
 
 import httpx
 
 FASHN_API_BASE = "https://api.fashn.ai/v1"
 FASHN_MODEL = "tryon-v1.6"
+
+
+# ---------------------------------------------------------------------------
+# Stylist dashboard models
+#
+# These dataclasses back the stylist dashboard feature. A `Stylist` manages a
+# portfolio of `Client`s, and each `Client` tracks the `Design`s that the
+# stylist has produced for them. Stylists also carry a free-form `metadata`
+# bag so downstream agents can read style preferences, brand guidelines, etc.
+# when automatically generating new designs.
+# ---------------------------------------------------------------------------
+
+
+def _new_id() -> str:
+    return uuid.uuid4().hex
+
+
+@dataclass
+class Design:
+    """A single design produced by a stylist for a client.
+
+    `image_urls` typically holds the outputs returned by `virtual_tryon`.
+    `metadata` is a free-form bag for things like the source garment image,
+    the prompt or notes used, the agent that generated it, etc.
+    """
+
+    id: str = field(default_factory=_new_id)
+    image_urls: list[str] = field(default_factory=list)
+    description: str = ""
+    metadata: dict[str, Any] = field(default_factory=dict)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+
+
+@dataclass
+class Client:
+    """A client managed by a stylist.
+
+    Holds a back-reference to the owning stylist (by id) and the list of
+    designs the stylist has created for them.
+    """
+
+    name: str
+    id: str = field(default_factory=_new_id)
+    stylist_id: Optional[str] = None
+    photo_path: Optional[str] = None
+    notes: str = ""
+    metadata: dict[str, Any] = field(default_factory=dict)
+    designs: list[Design] = field(default_factory=list)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+
+    def add_design(self, design: Design) -> Design:
+        """Attach a design to this client and return it."""
+        self.designs.append(design)
+        return design
+
+
+@dataclass
+class Stylist:
+    """A stylist who manages a portfolio of clients.
+
+    `metadata` stores information that automation agents can consume to
+    produce designs on the stylist's behalf (e.g. preferred aesthetic,
+    brand voice, color palette, sizing defaults).
+    """
+
+    name: str
+    id: str = field(default_factory=_new_id)
+    email: Optional[str] = None
+    bio: str = ""
+    metadata: dict[str, Any] = field(default_factory=dict)
+    clients: list[Client] = field(default_factory=list)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+
+    def add_client(self, client: Client) -> Client:
+        """Register a client with this stylist, linking both directions."""
+        client.stylist_id = self.id
+        self.clients.append(client)
+        return client
+
+    def get_client(self, client_id: str) -> Optional[Client]:
+        """Return the managed client with the given id, if any."""
+        for client in self.clients:
+            if client.id == client_id:
+                return client
+        return None
+
+    def add_design_for_client(
+        self, client_id: str, design: Design
+    ) -> Design:
+        """Record a new design under the specified client."""
+        client = self.get_client(client_id)
+        if client is None:
+            raise KeyError(f"Unknown client id for stylist {self.id}: {client_id}")
+        return client.add_design(design)
 
 
 def _file_to_data_uri(path: str) -> str:
