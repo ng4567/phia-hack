@@ -16,6 +16,11 @@ dependencies = [
     "python-dotenv>=1.0",
     "requests>=2.33.1",
     "fal-client>=0.7.0",
+    "agent-framework==1.0.0rc6",
+    "azure-ai-projects>=2.0.1",
+    "pydantic>=2.13.2",
+    "tavily-python>=0.7.23",
+    "azure-identity>=1.26.0b2",
 ]
 
 [project.scripts]

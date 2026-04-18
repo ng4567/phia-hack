@@ -8,6 +8,14 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.utils import virtual_tryon_cached
+from app.agents.orchestrator import (
+    run_product_research,
+    run_research_session,
+    run_trend_research,
+)
+from app.agents.retailers import POC_RETAILERS
+from app.agents.shopify import list_new_arrivals
+from pydantic import BaseModel
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 load_dotenv(REPO_ROOT / ".env")
@@ -48,6 +56,82 @@ async def api_tryon(
 
 if STATIC_DIR.is_dir():
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+
+# ---------------------------------------------------------------------------
+# Phase 1 agent endpoints
+# ---------------------------------------------------------------------------
+
+
+class TrendRequest(BaseModel):
+    query: str
+
+
+class ProductRequest(BaseModel):
+    query: str
+    retailer_ids: list[str] | None = None
+
+
+class ResearchRequest(BaseModel):
+    query: str
+    retailer_ids: list[str] | None = None
+
+
+@app.get("/api/agents/retailers")
+async def api_retailers():
+    return {
+        "retailers": [
+            {"id": r.id, "name": r.name, "collections": list(r.collections)}
+            for r in POC_RETAILERS.values()
+        ]
+    }
+
+
+@app.get("/api/agents/retailers/{retailer_id}/new-arrivals")
+async def api_new_arrivals(
+    retailer_id: str,
+    collection: str | None = None,
+    limit: int = 20,
+):
+    try:
+        products = await list_new_arrivals(
+            retailer_id, collection=collection, limit=limit
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=str(e))
+    return {"products": [p.model_dump(mode="json") for p in products]}
+
+
+@app.post("/api/agents/trend")
+async def api_trend(req: TrendRequest):
+    try:
+        brief = await run_trend_research(req.query)
+    except RuntimeError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    return brief.model_dump(mode="json")
+
+
+@app.post("/api/agents/product-board")
+async def api_product_board(req: ProductRequest):
+    try:
+        board = await run_product_research(req.query, retailer_ids=req.retailer_ids)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except RuntimeError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    return board.model_dump(mode="json")
+
+
+@app.post("/api/agents/research")
+async def api_research(req: ResearchRequest):
+    try:
+        return await run_research_session(req.query, retailer_ids=req.retailer_ids)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except RuntimeError as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/")
