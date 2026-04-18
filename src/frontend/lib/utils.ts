@@ -1,30 +1,34 @@
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+'use client';
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+import { useEffect, useState } from 'react';
+
+export function cx(...xs: Array<string | false | null | undefined>): string {
+  return xs.filter(Boolean).join(' ');
 }
 
-export function formatCurrency(value: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value);
+export function fmt(n: number): string {
+  return '$' + Math.round(n).toLocaleString();
 }
 
-export function formatDaysAgo(iso: string): string {
-  const then = new Date(iso).getTime();
-  const now = Date.now();
-  const days = Math.floor((now - then) / (1000 * 60 * 60 * 24));
-  if (days <= 0) return 'today';
-  if (days === 1) return 'yesterday';
-  if (days < 7) return `${days}d ago`;
-  if (days < 30) return `${Math.floor(days / 7)}w ago`;
-  return `${Math.floor(days / 30)}mo ago`;
-}
-
-export function sum<T>(arr: T[], fn: (x: T) => number): number {
-  return arr.reduce((acc, x) => acc + fn(x), 0);
+// Count-up hook — animates from 0 to target when `trigger` changes.
+// Faithful port of useCountUp from shared.jsx (lines 8–23).
+export function useCountUp(
+  target: number,
+  { duration = 900, trigger }: { duration?: number; trigger?: unknown } = {}
+): number {
+  const [val, setVal] = useState(0);
+  useEffect(() => {
+    let raf: number;
+    const start = performance.now();
+    const from = 0;
+    function tick(t: number) {
+      const p = Math.min(1, (t - start) / duration);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setVal(Math.round(from + (target - from) * eased));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    }
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, trigger, duration]);
+  return val;
 }

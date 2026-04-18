@@ -1,36 +1,29 @@
 import type { Metadata } from 'next';
-import { Fraunces, Roboto_Mono } from 'next/font/google';
-import { GeistSans } from 'geist/font/sans';
+import { Instrument_Serif, Inter } from 'next/font/google';
 import './globals.css';
 
-const fraunces = Fraunces({
-  subsets: ['latin'],
-  weight: ['300', '400', '500'],
+const serif = Instrument_Serif({
+  weight: '400',
   style: ['normal', 'italic'],
-  variable: '--font-fraunces',
-  display: 'swap',
+  subsets: ['latin'],
+  variable: '--font-serif',
 });
 
-const robotoMono = Roboto_Mono({
+const sans = Inter({
+  weight: ['300', '400', '500', '600'],
   subsets: ['latin'],
-  weight: ['400', '500'],
-  variable: '--font-mono-roboto',
-  display: 'swap',
+  variable: '--font-sans',
 });
 
 export const metadata: Metadata = {
-  title: 'phia for stylists',
-  description: 'Styled by your stylist, priced by phia.',
+  title: 'Phia for Stylists',
+  description: 'Styled by your stylist, priced by Phia.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang="en"
-      className={`${fraunces.variable} ${GeistSans.variable} ${robotoMono.variable}`}
-      style={{ ['--font-geist' as string]: GeistSans.style.fontFamily }}
-    >
-      <body className="min-h-screen bg-bg-primary text-ink antialiased">{children}</body>
+    <html lang="en" className={`${serif.variable} ${sans.variable}`}>
+      <body>{children}</body>
     </html>
   );
 }
