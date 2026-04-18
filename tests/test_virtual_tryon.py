@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from app.main import virtual_tryon
+from app.utils import virtual_tryon
 
 
 class _FakeResponse:
@@ -67,7 +67,7 @@ class VirtualTryOnTests(unittest.IsolatedAsyncioTestCase):
             fake_client = _FakeAsyncClient()
 
             with patch.dict(os.environ, {"FASHN-API-KEY": "test-key"}, clear=False):
-                with patch("app.main.httpx.AsyncClient", return_value=fake_client):
+                with patch("app.utils.httpx.AsyncClient", return_value=fake_client):
                     outputs = await virtual_tryon(
                         str(person),
                         str(clothes),
