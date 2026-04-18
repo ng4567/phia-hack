@@ -5,7 +5,7 @@ import type { SVGProps } from 'react';
 
 type IconComponent = (props?: SVGProps<SVGSVGElement>) => React.JSX.Element;
 
-export const Icon: Record<string, IconComponent> = {
+export const Icon = {
   bell: (p) => (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" {...p}>
       <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
@@ -110,4 +110,4 @@ export const Icon: Record<string, IconComponent> = {
       <path d="M6 6l12 12M6 18L18 6" />
     </svg>
   ),
-};
+} as const satisfies Record<string, IconComponent>;
