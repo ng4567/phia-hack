@@ -13,6 +13,7 @@ import { ClientCard } from '@/components/dashboard/ClientCard';
 import { ClientEditorialCard } from '@/components/dashboard/ClientEditorialCard';
 import { NewClientCard } from '@/components/dashboard/NewClientCard';
 import { RecentLookCard } from '@/components/dashboard/RecentLookCard';
+import { useCompileStore } from '@/lib/compileStore';
 
 export default function Dashboard() {
   return (
@@ -91,13 +92,19 @@ function DashboardInner() {
           {isEditorial ? (
             <div className="clients-editorial">
               {clients.map((c, i) => (
-                <ClientEditorialCard key={c.id} client={c} index={i} onClick={() => router.push(`/clients/${c.id}`)} />
+                <ClientEditorialCard key={c.id} client={c} index={i} onClick={() => {
+                  useCompileStore.getState().start(c.id);
+                  router.push(`/clients/${c.id}`);
+                }} />
               ))}
             </div>
           ) : (
             <div className="clients-grid">
               {clients.map((c) => (
-                <ClientCard key={c.id} client={c} onClick={() => router.push(`/clients/${c.id}`)} />
+                <ClientCard key={c.id} client={c} onClick={() => {
+                  useCompileStore.getState().start(c.id);
+                  router.push(`/clients/${c.id}`);
+                }} />
               ))}
               <NewClientCard />
             </div>

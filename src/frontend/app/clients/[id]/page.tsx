@@ -24,12 +24,14 @@ import { getClient, getLooksFor, lookTotals } from '@/lib/mock';
 import type { Look } from '@/lib/mock';
 import { useChatStore, threadIdFor } from '@/lib/chatStore';
 import { useInboxStore } from '@/lib/inboxStore';
+import { useCompileStore } from '@/lib/compileStore';
 import { MOCK } from '@/lib/mock';
 import { Icon } from '@/components/Icon';
 import { LookCard } from '@/components/client/LookCard';
 import { NewLookTile } from '@/components/client/NewLookTile';
 import { NotesView } from '@/components/client/NotesView';
 import { ChatRail } from '@/components/stylist/ChatRail';
+import { CompileDossierOverlay } from '@/components/stylist/CompileDossierOverlay';
 import { GmailClosetSection } from '@/components/stylist/GmailClosetSection';
 import { PreferencesPanel } from '@/components/stylist/PreferencesPanel';
 import { UpcomingEventsList } from '@/components/stylist/UpcomingEventsList';
@@ -82,6 +84,14 @@ export default function ClientDetail() {
     }
   }, []);
 
+  // Compile-dossier overlay — shown only if the stylist arrived here via a
+  // dashboard card click (which sets the store). Any other entry (direct
+  // URL, back nav) leaves the store idle so the overlay stays hidden.
+  const isCompiling = useCompileStore((s) => s.isCompiling);
+  const compileTarget = useCompileStore((s) => s.targetClientId);
+  const finishCompile = useCompileStore((s) => s.finish);
+  const showOverlay = isCompiling && compileTarget === id;
+
   // Aggregate saved across all looks (preserved from the prior version).
   const totals = useMemo(
     () =>
@@ -100,10 +110,14 @@ export default function ClientDetail() {
   if (!client) return null;
 
   return (
-    <div
-      className="screen client-detail"
-      data-screen-label={`02 Client · ${client.name}`}
-    >
+    <>
+      {showOverlay && (
+        <CompileDossierOverlay clientId={id} onComplete={finishCompile} />
+      )}
+      <div
+        className="screen client-detail"
+        data-screen-label={`02 Client · ${client.name}`}
+      >
       <div className="page-inner">
         <div className="crumb">
           <span
@@ -383,6 +397,7 @@ export default function ClientDetail() {
           .cd-name { font-size: 54px; }
         }
       `}</style>
-    </div>
+      </div>
+    </>
   );
 }
