@@ -1,0 +1,19 @@
+{
+  "brands": [
+    "The Row",
+    "Khaite",
+    "Saint Laurent",
+    "Brandon Maxwell",
+    "Toteme",
+    "Prada",
+    "Jil Sander"
+  ],
+  "sizes": {
+    "top": "XS",
+    "bottom": "25",
+    "shoe": "7.5"
+  },
+  "budget": "$800–$3,500 per piece for hero items, lower for basics",
+  "aesthetic": "Modern minimalist with an editorial streak. Sharp suiting for UN and climate panels; saturated column dresses for press. Loves a clean line, a strong shoulder, and jewel tones — emerald, oxblood, cobalt.",
+  "resaleFirst": false
+}

@@ -1,0 +1,276 @@
+{
+  "garments": [
+    {
+      "id": "cg-ph-01",
+      "name": "Juliette Silk Slip Dress",
+      "brand": "Reformation",
+      "category": "one-piece",
+      "imageUrl": "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=600&h=800&fit=crop",
+      "purchasedAt": "2025-10-03",
+      "retailPriceAtPurchase": 298,
+      "source": "gmail",
+      "sourceEmailSubject": "Your Reformation order #RF-2487103",
+      "sourceRetailer": "Reformation"
+    },
+    {
+      "id": "cg-ph-02",
+      "name": "Bow Midi Dress in Powder Pink",
+      "brand": "Cecilie Bahnsen",
+      "category": "one-piece",
+      "imageUrl": "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=600&h=800&fit=crop",
+      "purchasedAt": "2025-08-17",
+      "retailPriceAtPurchase": 1890,
+      "source": "gmail",
+      "sourceEmailSubject": "Order confirmed — Cecilie Bahnsen",
+      "sourceRetailer": "Cecilie Bahnsen"
+    },
+    {
+      "id": "cg-ph-03",
+      "name": "Crystal-Buckle Ballet Flat",
+      "brand": "Miu Miu",
+      "category": "shoes",
+      "imageUrl": "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=600&h=800&fit=crop",
+      "purchasedAt": "2025-11-21",
+      "retailPriceAtPurchase": 895,
+      "source": "gmail",
+      "sourceEmailSubject": "Miu Miu — your order has shipped",
+      "sourceRetailer": "Miu Miu"
+    },
+    {
+      "id": "cg-ph-04",
+      "name": "Velvet Ribbon Headband",
+      "brand": "Jennifer Behr",
+      "category": "accessory",
+      "imageUrl": "https://images.unsplash.com/photo-1591348122449-02525d70379b?w=600&h=800&fit=crop",
+      "purchasedAt": "2025-12-09",
+      "retailPriceAtPurchase": 168,
+      "source": "gmail",
+      "sourceEmailSubject": "Thanks for your Jennifer Behr order",
+      "sourceRetailer": "Jennifer Behr"
+    },
+    {
+      "id": "cg-ph-05",
+      "name": "Broderie Anglaise Blouse",
+      "brand": "Sea NY",
+      "category": "top",
+      "imageUrl": "https://images.unsplash.com/photo-1551048632-24e444b48a3e?w=600&h=800&fit=crop",
+      "purchasedAt": "2025-09-02",
+      "retailPriceAtPurchase": 385,
+      "source": "gmail",
+      "sourceEmailSubject": "Your order from Sea — #SEA9912",
+      "sourceRetailer": "Sea NY"
+    },
+    {
+      "id": "cg-ph-06",
+      "name": "Pressed-Floral Maxi",
+      "brand": "Oscar de la Renta",
+      "category": "one-piece",
+      "imageUrl": "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=600&h=800&fit=crop",
+      "purchasedAt": "2025-07-14",
+      "retailPriceAtPurchase": 4490,
+      "source": "gmail",
+      "sourceEmailSubject": "Oscar de la Renta — Resale (The RealReal)",
+      "sourceRetailer": "The RealReal"
+    },
+    {
+      "id": "cg-ph-07",
+      "name": "Intrecciato Mini Pouch in Butter",
+      "brand": "Bottega Veneta",
+      "category": "accessory",
+      "imageUrl": "https://images.unsplash.com/photo-1544441893-675973e31985?w=600&h=800&fit=crop",
+      "purchasedAt": "2025-06-28",
+      "retailPriceAtPurchase": 1650,
+      "source": "gmail",
+      "sourceEmailSubject": "Vestiaire Collective — Item delivered",
+      "sourceRetailer": "Vestiaire Collective"
+    },
+    {
+      "id": "cg-ph-08",
+      "name": "Shearling-Trim Wool Coat",
+      "brand": "Chloé",
+      "category": "outerwear",
+      "imageUrl": "https://images.unsplash.com/photo-1539008835657-9e8e9680c956?w=600&h=800&fit=crop",
+      "purchasedAt": "2025-10-29",
+      "retailPriceAtPurchase": 3200,
+      "source": "gmail",
+      "sourceEmailSubject": "Chloé — Order confirmation #CHL-88142",
+      "sourceRetailer": "Chloé"
+    },
+    {
+      "id": "cg-ph-09",
+      "name": "Cashmere Bow Cardigan",
+      "brand": "Sandy Liang",
+      "category": "top",
+      "imageUrl": "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=600&h=800&fit=crop",
+      "purchasedAt": "2025-11-06",
+      "retailPriceAtPurchase": 595,
+      "source": "gmail",
+      "sourceEmailSubject": "Sandy Liang — your order is on its way",
+      "sourceRetailer": "Sandy Liang"
+    },
+    {
+      "id": "cg-ph-10",
+      "name": "Tulle Ankle Sock, Ivory",
+      "brand": "Simone Rocha",
+      "category": "accessory",
+      "imageUrl": "https://images.unsplash.com/photo-1582735689369-4fe89db7114c?w=600&h=800&fit=crop",
+      "purchasedAt": "2025-11-06",
+      "retailPriceAtPurchase": 120,
+      "source": "gmail",
+      "sourceEmailSubject": "Sandy Liang — your order is on its way",
+      "sourceRetailer": "Sandy Liang"
+    },
+    {
+      "id": "cg-ph-11",
+      "name": "Washed Silk Cami in Blush",
+      "brand": "Reformation",
+      "category": "top",
+      "imageUrl": "https://images.unsplash.com/photo-1585487000160-6ebcfceb0d03?w=600&h=800&fit=crop",
+      "purchasedAt": "2025-12-19",
+      "retailPriceAtPurchase": 148,
+      "source": "gmail",
+      "sourceEmailSubject": "Reformation — Gift with Purchase shipped",
+      "sourceRetailer": "Reformation"
+    },
+    {
+      "id": "cg-ph-12",
+      "name": "Cotton Tea-Length Skirt",
+      "brand": "Batsheva",
+      "category": "bottom",
+      "imageUrl": "https://images.unsplash.com/photo-1594633313593-bab3825d0caf?w=600&h=800&fit=crop",
+      "purchasedAt": "2026-01-11",
+      "retailPriceAtPurchase": 495,
+      "source": "gmail",
+      "sourceEmailSubject": "Batsheva — Winter Sale confirmation",
+      "sourceRetailer": "Batsheva"
+    }
+  ],
+  "emails": [
+    {
+      "id": "eml-ph-01",
+      "subject": "Your Reformation order #RF-2487103",
+      "from": "hello@thereformation.com",
+      "received_at": "2025-10-03T15:42:00Z",
+      "retailer": "Reformation",
+      "order_total": 298,
+      "garment_ids": ["cg-ph-01"]
+    },
+    {
+      "id": "eml-ph-02",
+      "subject": "Order confirmed — Cecilie Bahnsen",
+      "from": "noreply@ceciliebahnsen.com",
+      "received_at": "2025-08-17T09:18:00Z",
+      "retailer": "Cecilie Bahnsen",
+      "order_total": 1890,
+      "garment_ids": ["cg-ph-02"]
+    },
+    {
+      "id": "eml-ph-03",
+      "subject": "Miu Miu — your order has shipped",
+      "from": "ecom@miumiu.com",
+      "received_at": "2025-11-21T14:02:00Z",
+      "retailer": "Miu Miu",
+      "order_total": 895,
+      "garment_ids": ["cg-ph-03"]
+    },
+    {
+      "id": "eml-ph-04",
+      "subject": "Thanks for your Jennifer Behr order",
+      "from": "team@jenniferbehr.com",
+      "received_at": "2025-12-09T17:31:00Z",
+      "retailer": "Jennifer Behr",
+      "order_total": 168,
+      "garment_ids": ["cg-ph-04"]
+    },
+    {
+      "id": "eml-ph-05",
+      "subject": "Your order from Sea — #SEA9912",
+      "from": "orders@sea-ny.com",
+      "received_at": "2025-09-02T11:05:00Z",
+      "retailer": "Sea NY",
+      "order_total": 385,
+      "garment_ids": ["cg-ph-05"]
+    },
+    {
+      "id": "eml-ph-06",
+      "subject": "Oscar de la Renta — Resale (The RealReal)",
+      "from": "orders@therealreal.com",
+      "received_at": "2025-07-14T19:48:00Z",
+      "retailer": "The RealReal",
+      "order_total": 1895,
+      "garment_ids": ["cg-ph-06"]
+    },
+    {
+      "id": "eml-ph-07",
+      "subject": "Vestiaire Collective — Item delivered",
+      "from": "hello@vestiairecollective.com",
+      "received_at": "2025-06-28T08:22:00Z",
+      "retailer": "Vestiaire Collective",
+      "order_total": 640,
+      "garment_ids": ["cg-ph-07"]
+    },
+    {
+      "id": "eml-ph-08",
+      "subject": "Chloé — Order confirmation #CHL-88142",
+      "from": "customercare@chloe.com",
+      "received_at": "2025-10-29T13:11:00Z",
+      "retailer": "Chloé",
+      "order_total": 3200,
+      "garment_ids": ["cg-ph-08"]
+    },
+    {
+      "id": "eml-ph-09",
+      "subject": "Sandy Liang — your order is on its way",
+      "from": "hello@sandyliang.info",
+      "received_at": "2025-11-06T16:47:00Z",
+      "retailer": "Sandy Liang",
+      "order_total": 715,
+      "garment_ids": ["cg-ph-09", "cg-ph-10"]
+    },
+    {
+      "id": "eml-ph-10",
+      "subject": "Reformation — Gift with Purchase shipped",
+      "from": "hello@thereformation.com",
+      "received_at": "2025-12-19T10:04:00Z",
+      "retailer": "Reformation",
+      "order_total": 148,
+      "garment_ids": ["cg-ph-11"]
+    },
+    {
+      "id": "eml-ph-11",
+      "subject": "Batsheva — Winter Sale confirmation",
+      "from": "orders@batsheva.com",
+      "received_at": "2026-01-11T14:55:00Z",
+      "retailer": "Batsheva",
+      "order_total": 495,
+      "garment_ids": ["cg-ph-12"]
+    },
+    {
+      "id": "eml-ph-12",
+      "subject": "Shipped — The RealReal order #TRR-55910",
+      "from": "orders@therealreal.com",
+      "received_at": "2025-09-21T20:33:00Z",
+      "retailer": "The RealReal",
+      "order_total": 740,
+      "garment_ids": []
+    },
+    {
+      "id": "eml-ph-13",
+      "subject": "Poshmark — Your purchase is confirmed",
+      "from": "support@poshmark.com",
+      "received_at": "2025-08-02T12:18:00Z",
+      "retailer": "Poshmark",
+      "order_total": 182,
+      "garment_ids": []
+    },
+    {
+      "id": "eml-ph-14",
+      "subject": "Net-a-Porter — Order #NAP-2210044",
+      "from": "customercare@net-a-porter.com",
+      "received_at": "2025-07-28T09:50:00Z",
+      "retailer": "Net-a-Porter",
+      "order_total": 1120,
+      "garment_ids": []
+    }
+  ]
+}

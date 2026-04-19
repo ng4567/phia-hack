@@ -1,0 +1,30 @@
+{
+  "events": [
+    {
+      "id": "evt-ph-out-01",
+      "title": "Press day — Conde Nast AM desk",
+      "category": "press",
+      "start": "2026-04-23T14:00:00Z",
+      "end": "2026-04-23T18:30:00Z",
+      "location": "One World Trade, 37th Fl",
+      "dress_code": "polished editorial",
+      "weather_hint": "rainy AM clearing",
+      "style_keywords": ["polished", "press-ready", "clean-lines"],
+      "notes": "Back-to-back with Vogue, Allure, and Teen Vogue beauty desks. Photo op with Anna at 3:30.",
+      "source": "outlook"
+    },
+    {
+      "id": "evt-ph-out-02",
+      "title": "Brand meeting — Chloé North America",
+      "category": "work",
+      "start": "2026-04-29T16:00:00Z",
+      "end": "2026-04-29T17:00:00Z",
+      "location": "Mercer Hotel Lounge",
+      "dress_code": "understated luxury",
+      "weather_hint": "indoor, warm lounge",
+      "style_keywords": ["tonal", "signature-neutral", "quiet-luxury"],
+      "notes": "Capsule collaboration discussion with Gabriela Hearst's team. Lean into their brand palette — ivory, fawn, soft grey.",
+      "source": "outlook"
+    }
+  ]
+}

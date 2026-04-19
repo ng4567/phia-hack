@@ -3,9 +3,14 @@
 // Look Builder — stylist drags garments onto the board.
 // Direct port of builder.jsx:1–238. Route params replace the prop-drilled
 // clientId; router replaces the source's onNav prop.
+//
+// Wave 2 seeding: honors `?seed=g1,g2,g3` and `?occasion=…` query params
+// coming from the Gmail closet click, the upcoming-events list, and
+// the AI brief overlay — so a deep-link into the builder lands with a
+// starting board and occasion already populated.
 
-import { useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { Suspense, useState } from 'react';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { cx, fmt } from '@/lib/utils';
 import { MOCK, getClient, getGarment } from '@/lib/mock';
 import type { Garment } from '@/lib/mock';
@@ -60,14 +65,31 @@ async function toUploadFile(imageUrl: string, filename: string): Promise<File> {
 }
 
 export default function LookBuilder() {
+  return (
+    <Suspense fallback={null}>
+      <LookBuilderInner />
+    </Suspense>
+  );
+}
+
+function LookBuilderInner() {
   const router = useRouter();
   const { id } = useParams<{ id: string }>();
   const client = getClient(id);
 
-  const [boardIds, setBoardIds] = useState<string[]>(['g16', 'g3', 'g13']);
+  // Query-string seeding from Wave 2 deep-links. `seed` is a comma-
+  // separated list of catalog garment ids; `occasion` is a free-form
+  // string that prefills the occasion input. Both are optional.
+  const searchParams = useSearchParams();
+  const seedIds = searchParams.get('seed')?.split(',').filter(Boolean) ?? [];
+  const seedOcc = searchParams.get('occasion') ?? '';
+
+  const [boardIds, setBoardIds] = useState<string[]>(
+    seedIds.length ? seedIds : ['g16', 'g3', 'g13'],
+  );
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('all');
-  const [occasion, setOccasion] = useState('Rooftop engagement party');
+  const [occasion, setOccasion] = useState(seedOcc || 'Rooftop engagement party');
   const [generating, setGenerating] = useState(false);
   const [generateError, setGenerateError] = useState<string | null>(null);
   const [dragId, setDragId] = useState<string | null>(null);

@@ -1,0 +1,21 @@
+{
+  "brands": [
+    "Reformation",
+    "Cecilie Bahnsen",
+    "Miu Miu",
+    "Chloé",
+    "Oscar de la Renta",
+    "Sandy Liang",
+    "Simone Rocha",
+    "Sea NY",
+    "Batsheva"
+  ],
+  "sizes": {
+    "top": "XS",
+    "bottom": "24",
+    "shoe": "7"
+  },
+  "budget": "$400–$1,400 per piece, splurge to $3k for heirlooms",
+  "aesthetic": "Romantic-feminine with a resale-first rule. Ribbons, bows, tea-length florals. Mix designer with vintage; never new fast-fashion. Press days lean polished; weekends lean pastoral.",
+  "resaleFirst": true
+}

@@ -1,0 +1,56 @@
+{
+  "events": [
+    {
+      "id": "evt-ph-cal-01",
+      "title": "Rooftop engagement party",
+      "category": "social",
+      "start": "2026-04-25T23:30:00Z",
+      "end": "2026-04-26T03:30:00Z",
+      "location": "DUMBO",
+      "dress_code": "cocktail",
+      "weather_hint": "clear, cool evening",
+      "style_keywords": ["romantic", "pastels"],
+      "notes": "Celia + Marcus — rooftop at 1 Hotel Brooklyn Bridge. Band plus late dinner. Heels on grass not ideal; bring a wrap for the river breeze.",
+      "source": "google_calendar"
+    },
+    {
+      "id": "evt-ph-cal-02",
+      "title": "Cecilie Bahnsen resort preview",
+      "category": "press",
+      "start": "2026-04-28T18:00:00Z",
+      "end": "2026-04-28T20:30:00Z",
+      "location": "The Mercer, SoHo",
+      "dress_code": "press-editorial",
+      "weather_hint": "mild, indoor cocktail",
+      "style_keywords": ["soft-tailoring", "tonal", "press-ready"],
+      "notes": "Intimate press preview of the Resort 2026 collection. Camera at the door; Vogue Runway will be shooting. No obvious logos.",
+      "source": "google_calendar"
+    },
+    {
+      "id": "evt-ph-cal-03",
+      "title": "Weekend in Hudson",
+      "category": "travel",
+      "start": "2026-05-02T14:00:00Z",
+      "end": "2026-05-04T18:00:00Z",
+      "location": "Hudson, NY",
+      "dress_code": "country weekend",
+      "weather_hint": "60s by day, crisp at night",
+      "style_keywords": ["countryside", "layered", "relaxed-romantic"],
+      "notes": "Dinner at Talbott & Arding Saturday. Farmers market and Olana walk Sunday. Need something that travels flat in a small duffel.",
+      "source": "google_calendar"
+    },
+    {
+      "id": "evt-ph-cal-04",
+      "title": "Monday editorial shoot",
+      "category": "editorial",
+      "start": "2026-05-04T13:00:00Z",
+      "end": "2026-05-04T19:00:00Z",
+      "location": "Spring Studios, Tribeca",
+      "dress_code": "editorial hero",
+      "weather_hint": "climate controlled",
+      "style_keywords": ["sculptural", "painterly", "statement"],
+      "notes": "Cover test for a spring fashion issue. Arrive in something the stylist can photograph on the way in — they love a BTS 'arrivals' look.",
+      "source": "google_calendar"
+    }
+  ]
+}
