@@ -170,9 +170,19 @@ function LookBuilderInner() {
       let personFileForStep: File | undefined = await toUploadFile(personImageUrl, personFilename);
       let personUrlForStep: string | undefined;
 
+      // Even on cache hit (where FAL returns instantly), keep the overlay up
+      // long enough for the caption cycle to feel authored — not a flash.
+      const MIN_STEP_MS = 7000;
+
       for (let i = 0; i < chain.length; i++) {
         const g = chain[i];
         setActiveStepIndex(i);
+
+        // Anchor the floor at the start of the step so slow steps don't
+        // add extra time on top of their real duration.
+        const minStepElapsed = new Promise<void>((resolve) =>
+          setTimeout(resolve, MIN_STEP_MS),
+        );
 
         const usesPhoebeAikoAsset =
           client.id === PHOEBE_CLIENT_ID && g.id === RED_AIKO_SILK_SLIP_DRESS_ID;
@@ -214,6 +224,10 @@ function LookBuilderInner() {
           if (!outputUrl) {
             throw new Error('Try-on API returned no output image.');
           }
+
+          // Hold the step until both the FAL result and the minimum-duration
+          // floor have landed.
+          await minStepElapsed;
 
           results[i] = { garment: g, status: 'ok', imageUrl: outputUrl };
           statuses[i] = 'ok';
