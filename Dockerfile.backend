@@ -1,0 +1,21 @@
+FROM python:3.14-slim
+
+WORKDIR /app
+
+# Install uv
+RUN pip install uv
+
+# Copy dependency files
+COPY pyproject.toml requirements.txt ./
+COPY src/ ./src/
+COPY agent/ ./agent/
+
+# Install dependencies
+RUN uv pip install --system -r requirements.txt
+
+ENV PYTHONPATH=/app/src
+ENV ENV=production
+
+EXPOSE 8000
+
+CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

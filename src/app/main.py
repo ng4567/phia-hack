@@ -85,6 +85,11 @@ def _is_dress_upcoming_request(message: str) -> bool:
     return "dress" in lowered and ("upcoming" in lowered or "events" in lowered)
 
 
+@app.get("/health")
+async def health() -> dict[str, str]:
+    return {"status": "ok"}
+
+
 @app.post("/api/agent/message")
 async def agent_message(req: AgentMessageRequest):
     if not _is_dress_upcoming_request(req.message):
