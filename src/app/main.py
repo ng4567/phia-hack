@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 import httpx
 import uvicorn
 from dotenv import load_dotenv
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -107,6 +107,42 @@ def _is_dress_upcoming_request(message: str) -> bool:
     return "dress" in lowered and ("upcoming" in lowered or "events" in lowered)
 
 
+def _telegram_token() -> str:
+    token = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
+    if not token:
+        raise RuntimeError("Missing TELEGRAM_BOT_TOKEN")
+    return token
+
+
+def _extract_telegram_message(update: dict[str, Any]) -> tuple[int, str] | None:
+    message = update.get("message") or update.get("edited_message")
+    if not isinstance(message, dict):
+        return None
+    chat = message.get("chat", {})
+    chat_id = chat.get("id")
+    text = message.get("text")
+    if not isinstance(chat_id, int) or not isinstance(text, str):
+        return None
+    stripped = text.strip()
+    if not stripped:
+        return None
+    return chat_id, stripped
+
+
+async def _telegram_send_message(chat_id: int, text: str) -> None:
+    token = _telegram_token()
+    url = f"https://api.telegram.org/bot{token}/sendMessage"
+    async with httpx.AsyncClient(timeout=20.0) as client:
+        resp = await client.post(
+            url,
+            json={
+                "chat_id": chat_id,
+                "text": text,
+            },
+        )
+        resp.raise_for_status()
+
+
 @app.get("/health")
 async def health() -> dict[str, str]:
     return {"status": "ok"}
@@ -199,6 +235,42 @@ async def stylist_agent_message(req: StylistAgentMessageRequest):
         "source": "google_calendar",
         **payload,
     }
+
+
+@app.post("/webhooks/telegram")
+async def telegram_webhook(request: Request):
+    configured_secret = os.getenv("TELEGRAM_WEBHOOK_SECRET", "").strip()
+    if configured_secret:
+        incoming_secret = request.headers.get("X-Telegram-Bot-Api-Secret-Token", "")
+        if incoming_secret != configured_secret:
+            raise HTTPException(status_code=403, detail="Invalid Telegram webhook secret")
+
+    try:
+        update = await request.json()
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=f"Invalid Telegram payload: {exc}")
+
+    extracted = _extract_telegram_message(update)
+    if extracted is None:
+        # Return 200 so Telegram does not keep retrying non-text updates.
+        return {"ok": True, "processed": False}
+
+    chat_id, text = extracted
+    try:
+        agent_payload = await simulate_telegram_chat_with_phoebe(
+            text,
+            person_image_metadata={"client_id": "phoebe", "telegram_chat_id": str(chat_id)},
+        )
+        reply_text = str(agent_payload.get("reply", "Hi Phoebe, how may I help you"))
+    except Exception as exc:
+        reply_text = f"Sorry, I hit an internal error. Please try again. ({exc})"
+
+    try:
+        await _telegram_send_message(chat_id, reply_text)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Failed sending Telegram response: {exc}")
+
+    return {"ok": True, "processed": True}
 
 
 @app.post("/api/tryon")

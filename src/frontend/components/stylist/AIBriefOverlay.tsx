@@ -125,9 +125,12 @@ export function AIBriefOverlay({ open, clientId, onClose }: AIBriefOverlayProps)
         : '/clients/phoebe.png';
 
     try {
-      if (!BACKEND_BASE_URL) throw new Error('Backend URL not configured.');
+      const backendBase =
+        BACKEND_BASE_URL ||
+        (typeof window !== 'undefined' ? window.location.origin : '');
+      if (!backendBase) throw new Error('Backend URL not configured.');
 
-      const res = await fetch(`${BACKEND_BASE_URL}/api/agent/message`, {
+      const res = await fetch(`${backendBase}/api/agent/message`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

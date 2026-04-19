@@ -22,12 +22,14 @@ import type { StepStatus } from '@/components/builder/GenerateOverlay';
 function getBackendBaseUrl(): string {
   const configured = process.env.NEXT_PUBLIC_TRYON_BACKEND_URL?.trim();
   if (configured) {
-    return new URL(configured).toString().replace(/\/+$/, '');
+    try {
+      return new URL(configured).toString().replace(/\/+$/, '');
+    } catch {
+      return configured.replace(/\/+$/, '');
+    }
   }
-  if (process.env.NODE_ENV === 'production') {
-    throw new Error('NEXT_PUBLIC_TRYON_BACKEND_URL must be set in production.');
-  }
-  return 'http://127.0.0.1:8000';
+  // For all-in-one deployments we allow same-origin API calls.
+  return process.env.NODE_ENV === 'production' ? '' : 'http://127.0.0.1:8000';
 }
 
 const BACKEND_BASE_URL = getBackendBaseUrl();
@@ -135,8 +137,7 @@ function LookBuilderInner() {
     setGenerateError(null);
 
     try {
-      const backendOrigin = new URL(BACKEND_BASE_URL).origin;
-      if (window.location.origin === backendOrigin) {
+      if (BACKEND_BASE_URL && window.location.origin === new URL(BACKEND_BASE_URL).origin) {
         throw new Error(
           'Set NEXT_PUBLIC_TRYON_BACKEND_URL to your backend address (different from frontend).',
         );
