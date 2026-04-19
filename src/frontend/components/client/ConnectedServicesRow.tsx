@@ -18,6 +18,7 @@ import sophiaCalendar from '@/lib/mock/client-sophia-calendar.json';
 import sophiaOutlook from '@/lib/mock/client-sophia-outlook.json';
 import type { CalendarEvent, ClosetGarment, ParsedOrderEmail } from '@/lib/mock/types';
 import { useIntegrationsStore } from '@/lib/integrationsStore';
+import { GmailLogo, GoogleCalendarLogo, OutlookLogo } from '@/components/brand/ServiceLogo';
 
 interface GmailShape {
   garments: ClosetGarment[];
@@ -51,56 +52,6 @@ interface ServiceCardSpec {
   metric: string;
   syncedAt: string;
   glyph: React.ReactNode;
-}
-
-function gmailIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" width="20" height="20" aria-hidden="true">
-      <path
-        d="M3 6.5v11A2.5 2.5 0 0 0 5.5 20H9v-8.2L3.6 6a2.5 2.5 0 0 0-.6.5z"
-        fill="#C5221F"
-      />
-      <path d="M21 6.5v11A2.5 2.5 0 0 1 18.5 20H15v-8.2L20.4 6c.4.1.6.3.6.5z" fill="#1A73E8" />
-      <path d="M9 11.8V20h6v-8.2L12 9.5 9 11.8z" fill="#EA4335" />
-      <path d="M9 11.8L3.6 6A2.5 2.5 0 0 1 5.5 5H9v6.8z" fill="#C5221F" />
-      <path d="M15 11.8L20.4 6A2.5 2.5 0 0 0 18.5 5H15v6.8z" fill="#FBBC04" />
-      <path d="M9 11.8 L12 9.5 L15 11.8 L12 14.1 Z" fill="#34A853" />
-    </svg>
-  );
-}
-function calendarIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      width="20"
-      height="20"
-      stroke="currentColor"
-      strokeWidth="1.4"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <rect x="3.5" y="5" width="17" height="15" rx="2.5" />
-      <path d="M3.5 9.5h17" />
-      <path d="M8 3v4M16 3v4" />
-      <circle cx="8" cy="14" r="1" fill="currentColor" stroke="none" />
-      <circle cx="12" cy="14" r="1" fill="currentColor" stroke="none" />
-      <circle cx="16" cy="14" r="1" fill="currentColor" stroke="none" />
-    </svg>
-  );
-}
-function outlookIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" width="20" height="20" aria-hidden="true">
-      <rect x="2.5" y="5" width="13" height="14" rx="1.5" fill="#0078D4" />
-      <path
-        d="M9 8.5c-1.9 0-3 1.6-3 3.5s1.1 3.5 3 3.5 3-1.6 3-3.5-1.1-3.5-3-3.5zm0 5.5c-.9 0-1.4-.9-1.4-2s.5-2 1.4-2 1.4.9 1.4 2-.5 2-1.4 2z"
-        fill="#fff"
-      />
-      <path d="M15.5 9v6l5 2.5V6.5L15.5 9z" fill="#50D9FF" />
-    </svg>
-  );
 }
 
 function formatRelativeMinutes(minutesAgo: number): string {
@@ -138,7 +89,7 @@ export function ConnectedServicesRow({ clientId }: ConnectedServicesRowProps) {
           ? `${emailCount} orders parsed · ${garmentCount} garments found`
           : 'Nothing parsed yet',
       syncedAt: formatRelativeMinutes(2),
-      glyph: gmailIcon(),
+      glyph: <GmailLogo size={22} />,
     },
     {
       key: 'googleCalendar',
@@ -146,7 +97,7 @@ export function ConnectedServicesRow({ clientId }: ConnectedServicesRowProps) {
       account: `${firstName}.gates@gmail.com`,
       metric: calCount > 0 ? `${calCount} upcoming events` : 'No upcoming events',
       syncedAt: formatRelativeMinutes(2),
-      glyph: calendarIcon(),
+      glyph: <GoogleCalendarLogo size={22} />,
     },
     {
       key: 'outlook',
@@ -154,7 +105,7 @@ export function ConnectedServicesRow({ clientId }: ConnectedServicesRowProps) {
       account: `${firstName}@editorialcollective.co`,
       metric: outCount > 0 ? `${outCount} work events this week` : 'No work events',
       syncedAt: formatRelativeMinutes(4),
-      glyph: outlookIcon(),
+      glyph: <OutlookLogo size={22} />,
     },
   ];
 
@@ -245,8 +196,11 @@ export function ConnectedServicesRow({ clientId }: ConnectedServicesRowProps) {
           border-radius: 50%;
         }
         .dot-on {
-          background: var(--sage);
-          box-shadow: 0 0 0 3px rgba(122, 132, 113, 0.18);
+          background: #22C55E;
+          box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.25);
+        }
+        .svc.on .status-label {
+          color: #16A34A;
         }
         .dot-off {
           background: var(--ink-4);

@@ -15,16 +15,18 @@
 // as a second sub-line; for now the chip is intentionally one line.
 
 import { useIntegrationsStore } from '@/lib/integrationsStore';
+import { GmailLogo, GoogleCalendarLogo, OutlookLogo } from '@/components/brand/ServiceLogo';
 
 interface Slot {
   key: 'gmail' | 'googleCalendar' | 'outlook';
   label: string;
+  Logo: (props: { size?: number }) => React.ReactElement;
 }
 
 const SLOTS: Slot[] = [
-  { key: 'gmail', label: 'Gmail' },
-  { key: 'googleCalendar', label: 'Calendar' },
-  { key: 'outlook', label: 'Outlook' },
+  { key: 'gmail', label: 'Gmail', Logo: GmailLogo },
+  { key: 'googleCalendar', label: 'Calendar', Logo: GoogleCalendarLogo },
+  { key: 'outlook', label: 'Outlook', Logo: OutlookLogo },
 ];
 
 export function ConnectedDotsCompact() {
@@ -37,14 +39,18 @@ export function ConnectedDotsCompact() {
     <div className="cd-root" role="list" aria-label="Connected integrations">
       {SLOTS.map((slot) => {
         const on = byKey[slot.key];
+        const { Logo } = slot;
         return (
           <div
             key={slot.key}
             role="listitem"
             className={`cd-chip ${on ? 'cd-on' : 'cd-off'}`}
           >
-            <span className="cd-dot" aria-hidden="true" />
+            <span className="cd-logo" aria-hidden="true">
+              <Logo size={14} />
+            </span>
             <span className="cd-label">{slot.label}</span>
+            <span className="cd-dot" aria-hidden="true" />
           </div>
         );
       })}
@@ -59,20 +65,29 @@ export function ConnectedDotsCompact() {
           display: inline-flex;
           align-items: center;
           gap: 7px;
-          padding: 5px 11px 5px 10px;
+          padding: 4px 10px 4px 8px;
           border-radius: 999px;
           background: var(--card);
           border: 1px solid var(--line);
           font-size: 11.5px;
           letter-spacing: 0.02em;
-          transition: border-color .18s ease, background .18s ease;
+          transition: border-color .18s ease, background .18s ease, opacity .18s ease;
         }
         .cd-chip.cd-off {
           background: var(--bg-sub);
           color: var(--ink-3);
+          opacity: 0.6;
         }
         .cd-chip.cd-on { color: var(--ink-2); }
         .cd-chip.cd-on:hover { border-color: var(--line-2); }
+
+        .cd-logo {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+        .cd-chip.cd-off .cd-logo { filter: grayscale(1) opacity(0.7); }
 
         .cd-dot {
           width: 6px;
@@ -84,8 +99,8 @@ export function ConnectedDotsCompact() {
           transition: background .18s ease, box-shadow .18s ease;
         }
         .cd-on .cd-dot {
-          background: var(--sage);
-          box-shadow: 0 0 0 2px rgba(122,132,113,0.18);
+          background: #22C55E;
+          box-shadow: 0 0 0 2px rgba(34,197,94,0.25);
         }
 
         .cd-label { font-weight: 500; }
