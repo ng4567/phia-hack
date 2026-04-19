@@ -25,7 +25,12 @@ function getBackendBaseUrl(): string {
     return new URL(configured).toString().replace(/\/+$/, '');
   }
   if (process.env.NODE_ENV === 'production') {
-    throw new Error('NEXT_PUBLIC_TRYON_BACKEND_URL must be set in production.');
+    // In all-in-one/container deployments, frontend and backend are often
+    // served from the same origin via a reverse proxy.
+    if (typeof window !== 'undefined') {
+      return window.location.origin;
+    }
+    return 'http://localhost:8080';
   }
   return 'http://127.0.0.1:8000';
 }
@@ -136,7 +141,7 @@ function LookBuilderInner() {
 
     try {
       const backendOrigin = new URL(BACKEND_BASE_URL).origin;
-      if (window.location.origin === backendOrigin) {
+      if (process.env.NODE_ENV !== 'production' && window.location.origin === backendOrigin) {
         throw new Error(
           'Set NEXT_PUBLIC_TRYON_BACKEND_URL to your backend address (different from frontend).',
         );
