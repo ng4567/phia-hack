@@ -242,10 +242,22 @@ def localize(img: Image, event: CalEvent) -> Image:
     return Image(uri=img.uri, description=description, metadata=metadata)
 
 
-async def main() -> None:
+def _create_foundry_client() -> "FoundryChatClient":
     if Agent is None or FoundryChatClient is None or ClientSecretCredential is None:
         raise RuntimeError(
-            "agent_framework and azure.identity must be installed to run the Foundry demo."
+            "Missing Foundry dependencies. Install `agent_framework` and `azure-identity`."
+        )
+
+    required_env = [
+        "AZURE_PROJECT_ENDPOINT",
+        "AZURE_TENANT_ID",
+        "AZURE_CLIENT_ID",
+        "AZURE_CLIENT_SECRET",
+    ]
+    missing = [name for name in required_env if not os.getenv(name)]
+    if missing:
+        raise RuntimeError(
+            f"Missing Foundry configuration: {', '.join(missing)}"
         )
 
     credential = ClientSecretCredential(
@@ -253,12 +265,71 @@ async def main() -> None:
         client_id=os.getenv("AZURE_CLIENT_ID"),
         client_secret=os.getenv("AZURE_CLIENT_SECRET"),
     )
-
-    client = FoundryChatClient(
+    return FoundryChatClient(
         project_endpoint=os.getenv("AZURE_PROJECT_ENDPOINT"),
-        model="gpt-5.4",
+        model=os.getenv("AZURE_MODEL", "gpt-5.4"),
         credential=credential,
     )
+
+
+async def generate_styling_reply(
+    user_message: str,
+    *,
+    events: Sequence[CalEvent],
+    products: dict[str, Any],
+    localized_images: Sequence[Image],
+) -> str:
+    client = _create_foundry_client()
+    stylist_agent = Agent(
+        client=client,
+        name="PhiaStylistAgent",
+        instructions=(
+            "You are a personal fashion stylist assistant. Use the supplied event context and "
+            "product suggestions to provide concise outfit guidance for each upcoming event."
+        ),
+    )
+
+    context_payload = {
+        "events": [
+            {
+                "id": event.id,
+                "title": event.title,
+                "start": event.start.isoformat(),
+                "end": event.end.isoformat(),
+                "location": event.location,
+                "dress_code": event.dress_code,
+                "weather_hint": event.weather_hint,
+                "style_keywords": event.style_keywords,
+            }
+            for event in events
+        ],
+        "products_by_event": products.get("products_by_event", []),
+        "localized_outfits": [
+            {
+                "image_uri": image.uri,
+                "description": image.description,
+                "metadata": image.metadata,
+            }
+            for image in localized_images
+        ],
+    }
+
+    prompt = (
+        "User request:\n"
+        f"{user_message}\n\n"
+        "Calendar and outfit context:\n"
+        f"{json.dumps(context_payload, ensure_ascii=True)}\n\n"
+        "Return:\n"
+        "1. A short overall styling strategy.\n"
+        "2. A numbered list with one outfit recommendation per event.\n"
+        "3. Keep it practical and concise."
+    )
+    result = await stylist_agent.run(prompt)
+    return str(result)
+
+
+async def main() -> None:
+    client = _create_foundry_client()
 
     agent = Agent(
         client=client,

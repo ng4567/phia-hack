@@ -8,3 +8,6 @@ __pycache__/
 tests/__pycache__
 tests/__pycache__/test_virtual_tryon.cpython-314.pyc
 tests/__pycache__/test_virtual_tryon.cpython-314.pyc
+tests/__pycache__/test_virtual_tryon.cpython-314.pyc
+frontend/.next/
+frontend/node_modules/

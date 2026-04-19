@@ -1,2 +1,3 @@
 frontend/.next/
 frontend/node_modules/
+tests/__pycache__/test_virtual_tryon.cpython-314.pyc

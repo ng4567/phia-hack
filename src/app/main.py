@@ -17,7 +17,14 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 load_dotenv(REPO_ROOT / ".env")
 
 try:
-    from agent.agent import Image, get_user_events, localize, make_design, search_products
+    from agent.agent import (
+        Image,
+        generate_styling_reply,
+        get_user_events,
+        localize,
+        make_design,
+        search_products,
+    )
 except ModuleNotFoundError:
     agent_module_path = REPO_ROOT / "agent" / "agent.py"
     spec = importlib.util.spec_from_file_location("phia_agent_runtime", agent_module_path)
@@ -27,6 +34,7 @@ except ModuleNotFoundError:
     sys.modules[spec.name] = agent_module
     spec.loader.exec_module(agent_module)
     Image = agent_module.Image
+    generate_styling_reply = agent_module.generate_styling_reply
     get_user_events = agent_module.get_user_events
     localize = agent_module.localize
     make_design = agent_module.make_design
@@ -54,6 +62,7 @@ async def agent_message(req: AgentMessageRequest):
     if not _is_dress_upcoming_request(req.message):
         return {
             "intent_recognized": False,
+            "llm_used": False,
             "reply": "Ask me to dress you for your upcoming events to start the styling flow.",
             "next_step": "Example: 'Dress me for my upcoming events.'",
         }
@@ -72,10 +81,22 @@ async def agent_message(req: AgentMessageRequest):
         ),
     )
     localized_designs = [localize(design_seed, event) for event in events]
+    try:
+        llm_reply = await generate_styling_reply(
+            req.message,
+            events=events,
+            products=products,
+            localized_images=localized_designs,
+        )
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"GPT request failed: {exc}")
 
     return {
         "intent_recognized": True,
-        "reply": "Styled looks generated for your upcoming events.",
+        "reply": llm_reply,
+        "llm_used": True,
         "source": req.source,
         "events": [
             {
