@@ -278,6 +278,15 @@ export const MOCK: MockShape = {
       imageUrl: 'https://images.unsplash.com/photo-1535632787350-4e68ef0ac584?w=600&h=800&fit=crop',
       phia: { lowest: 72, source: 'Poshmark', condition: 'new', savings: 57 },
     },
+    {
+      id: 'g16',
+      name: 'Verdant Silk Slip Dress',
+      brand: 'Cecilie Bahnsen',
+      category: 'one-piece',
+      retailPrice: 385,
+      imageUrl: '/garments/green-dress.jpg',
+      phia: { lowest: 168, source: 'Vestiaire Collective', condition: 'like-new', savings: 56 },
+    },
   ],
 
   // Pre-built looks for the demo.
