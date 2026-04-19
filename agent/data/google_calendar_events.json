@@ -1,0 +1,89 @@
+{
+  "source": "google_calendar",
+  "owner": {
+    "name": "Avery Stone",
+    "email": "avery.stone@example.com",
+    "timezone": "America/New_York"
+  },
+  "generated_at": "2026-04-19T00:00:00Z",
+  "events": [
+    {
+      "id": "gcal_evt_001",
+      "title": "Rooftop Product Launch",
+      "category": "work",
+      "start": "2026-05-06T18:30:00-04:00",
+      "end": "2026-05-06T21:30:00-04:00",
+      "all_day": false,
+      "location": "The Lumen Roof, Brooklyn, NY",
+      "dress_code": "smart casual",
+      "weather_hint": "cool evening, breezy",
+      "notes": "Meeting press, founders, and design partners after the keynote.",
+      "style_keywords": ["tailored", "sleek", "statement jacket", "comfortable heels"]
+    },
+    {
+      "id": "gcal_evt_002",
+      "title": "Best Friend's Garden Wedding",
+      "category": "social",
+      "start": "2026-05-16T15:00:00-04:00",
+      "end": "2026-05-16T22:00:00-04:00",
+      "all_day": false,
+      "location": "Rosebridge Conservatory, Hudson Valley, NY",
+      "dress_code": "formal garden attire",
+      "weather_hint": "mild afternoon, chance of light rain",
+      "notes": "Outdoor ceremony on grass with indoor reception to follow.",
+      "style_keywords": ["romantic", "pastels", "block heels", "light layers"]
+    },
+    {
+      "id": "gcal_evt_003",
+      "title": "Quarterly Board Presentation",
+      "category": "work",
+      "start": "2026-05-21T09:00:00-04:00",
+      "end": "2026-05-21T11:00:00-04:00",
+      "all_day": false,
+      "location": "Northstar Capital, Manhattan, NY",
+      "dress_code": "business professional",
+      "weather_hint": "warm morning",
+      "notes": "Presenting revenue forecast and leading Q&A with executives.",
+      "style_keywords": ["structured", "polished", "neutral palette", "minimal accessories"]
+    },
+    {
+      "id": "gcal_evt_004",
+      "title": "Weekend Art Fair",
+      "category": "personal",
+      "start": "2026-06-07T11:00:00-04:00",
+      "end": "2026-06-07T16:00:00-04:00",
+      "all_day": false,
+      "location": "Harborfront Market, Jersey City, NJ",
+      "dress_code": "casual",
+      "weather_hint": "sunny and warm",
+      "notes": "Walking between outdoor booths and meeting friends for lunch.",
+      "style_keywords": ["relaxed", "creative", "crossbody bag", "walkable shoes"]
+    },
+    {
+      "id": "gcal_evt_005",
+      "title": "Anniversary Dinner Reservation",
+      "category": "social",
+      "start": "2026-06-20T19:30:00-04:00",
+      "end": "2026-06-20T22:00:00-04:00",
+      "all_day": false,
+      "location": "Maison Vale, SoHo, NY",
+      "dress_code": "elevated eveningwear",
+      "weather_hint": "humid summer night",
+      "notes": "Dinner at a modern French restaurant with a dressy atmosphere.",
+      "style_keywords": ["elegant", "dark florals", "dressy", "lightweight fabric"]
+    },
+    {
+      "id": "gcal_evt_006",
+      "title": "Team Offsite in Napa",
+      "category": "travel",
+      "start": "2026-07-10T10:00:00-07:00",
+      "end": "2026-07-12T18:00:00-07:00",
+      "all_day": false,
+      "location": "Silver Glen Resort, Napa, CA",
+      "dress_code": "resort casual",
+      "weather_hint": "hot afternoons, cool evenings",
+      "notes": "Mix of strategy sessions, dinners, and winery tours.",
+      "style_keywords": ["linen", "capsule wardrobe", "sun hat", "layering pieces"]
+    }
+  ]
+}

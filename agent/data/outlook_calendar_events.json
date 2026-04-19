@@ -1,0 +1,89 @@
+{
+  "source": "outlook_calendar",
+  "owner": {
+    "name": "Jordan Vale",
+    "email": "jordan.vale@example.com",
+    "timezone": "America/Los_Angeles"
+  },
+  "generated_at": "2026-04-19T00:00:00Z",
+  "events": [
+    {
+      "id": "outlook_evt_001",
+      "title": "Investor Breakfast Meeting",
+      "category": "work",
+      "start": "2026-05-04T08:00:00-07:00",
+      "end": "2026-05-04T09:30:00-07:00",
+      "all_day": false,
+      "location": "Cedar House Hotel, San Francisco, CA",
+      "dress_code": "business casual",
+      "weather_hint": "chilly morning",
+      "notes": "Coffee patio meeting with two potential seed investors.",
+      "style_keywords": ["layered", "clean lines", "smart separates", "leather tote"]
+    },
+    {
+      "id": "outlook_evt_002",
+      "title": "Cousin's Engagement Party",
+      "category": "family",
+      "start": "2026-05-09T17:00:00-07:00",
+      "end": "2026-05-09T22:30:00-07:00",
+      "all_day": false,
+      "location": "Private home, Oakland, CA",
+      "dress_code": "festive cocktail",
+      "weather_hint": "pleasant evening",
+      "notes": "Indoor-outdoor celebration with family photos planned at sunset.",
+      "style_keywords": ["playful", "jewel tones", "cocktail attire", "photo-ready"]
+    },
+    {
+      "id": "outlook_evt_003",
+      "title": "Conference Panel: Future of Retail AI",
+      "category": "work",
+      "start": "2026-06-02T13:00:00-07:00",
+      "end": "2026-06-02T15:00:00-07:00",
+      "all_day": false,
+      "location": "Moscone Center, San Francisco, CA",
+      "dress_code": "conference polished",
+      "weather_hint": "mild afternoon indoors",
+      "notes": "Speaking on stage, then networking with attendees and press.",
+      "style_keywords": ["modern", "camera-friendly", "confident", "tailored monochrome"]
+    },
+    {
+      "id": "outlook_evt_004",
+      "title": "Beachside Birthday Picnic",
+      "category": "social",
+      "start": "2026-06-14T12:00:00-07:00",
+      "end": "2026-06-14T16:00:00-07:00",
+      "all_day": false,
+      "location": "Crane Cove Beach, San Francisco, CA",
+      "dress_code": "casual summer",
+      "weather_hint": "sunny with ocean wind",
+      "notes": "Bring a light blanket and expect sand, wind, and group photos.",
+      "style_keywords": ["easy layers", "sunglasses", "comfortable sandals", "coastal"]
+    },
+    {
+      "id": "outlook_evt_005",
+      "title": "Charity Gala at the Museum",
+      "category": "social",
+      "start": "2026-07-18T19:00:00-07:00",
+      "end": "2026-07-18T23:30:00-07:00",
+      "all_day": false,
+      "location": "Museum of Modern Forms, San Francisco, CA",
+      "dress_code": "black tie optional",
+      "weather_hint": "cool night",
+      "notes": "Cocktail hour, seated dinner, and silent auction.",
+      "style_keywords": ["dramatic", "refined", "metallic accents", "formal footwear"]
+    },
+    {
+      "id": "outlook_evt_006",
+      "title": "Weekend Cabin Getaway",
+      "category": "travel",
+      "start": "2026-08-08T16:00:00-07:00",
+      "end": "2026-08-10T11:00:00-07:00",
+      "all_day": false,
+      "location": "Pine Echo Lodge, Lake Tahoe, CA",
+      "dress_code": "cozy casual",
+      "weather_hint": "warm days, cold nights",
+      "notes": "Packing for lakeside mornings, hiking, and dinner by the fire.",
+      "style_keywords": ["knitwear", "boots", "outdoor layers", "weekend essentials"]
+    }
+  ]
+}

@@ -24,3 +24,12 @@ The ideal frontend is a messaging app like WhatsApp, iMessage or Discord that hi
 
 - create styled outfits for upcoming user events
 - update one's Phia closet with recipt data from their emails
+
+
+# Test cURL request:
+
+```zsh
+curl -s -X POST http://127.0.0.1:8000/api/agent/message \
+  -H 'Content-Type: application/json' \
+  -d '{"message":"dress me for my upcoming events","source":"google_calendar"}'
+```
