@@ -33,3 +33,7 @@ curl -s -X POST http://127.0.0.1:8000/api/agent/message \
   -H 'Content-Type: application/json' \
   -d '{"message":"dress me for my upcoming events","source":"google_calendar"}'
 ```
+
+# Stylist Agent
+
+This agent is meant to chat within a messenger like WhatsApp or Telegram and represent an AI Phia stylist. It uses context you give it from platforms like OpenClaw to find you designs.

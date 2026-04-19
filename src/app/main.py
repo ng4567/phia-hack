@@ -43,6 +43,22 @@ except ModuleNotFoundError:
     make_design = agent_module.make_design
     search_products = agent_module.search_products
 
+try:
+    from agent.stylist_agent import simulate_telegram_chat_with_phoebe
+except ModuleNotFoundError:
+    stylist_module_path = REPO_ROOT / "agent" / "stylist-agent.py"
+    stylist_spec = importlib.util.spec_from_file_location(
+        "phia_stylist_agent_runtime", stylist_module_path
+    )
+    if stylist_spec is None or stylist_spec.loader is None:
+        raise ModuleNotFoundError(
+            f"Unable to load stylist agent module from {stylist_module_path}"
+        )
+    stylist_module = importlib.util.module_from_spec(stylist_spec)
+    sys.modules[stylist_spec.name] = stylist_module
+    stylist_spec.loader.exec_module(stylist_module)
+    simulate_telegram_chat_with_phoebe = stylist_module.simulate_telegram_chat_with_phoebe
+
 STATIC_DIR = Path(__file__).parent / "static"
 DATA_DIR = Path(__file__).parent / "data"
 
@@ -76,6 +92,12 @@ if allow_origins or allow_origin_regex:
 class AgentMessageRequest(BaseModel):
     message: str = Field(..., min_length=1)
     source: str = "google_calendar"
+    person_image_uri: str = "placeholder://person-image"
+    person_image_metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class StylistAgentMessageRequest(BaseModel):
+    message: str = Field(default="/start")
     person_image_uri: str = "placeholder://person-image"
     person_image_metadata: dict[str, Any] = Field(default_factory=dict)
 
@@ -156,6 +178,26 @@ async def agent_message(req: AgentMessageRequest):
             }
             for event, image in zip(events, localized_designs)
         ],
+    }
+
+
+@app.post("/api/stylist-agent/message")
+async def stylist_agent_message(req: StylistAgentMessageRequest):
+    try:
+        payload = await simulate_telegram_chat_with_phoebe(
+            req.message,
+            person_image_uri=req.person_image_uri,
+            person_image_metadata=req.person_image_metadata,
+        )
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Stylist agent request failed: {exc}")
+
+    return {
+        "persona": "phoebe",
+        "source": "google_calendar",
+        **payload,
     }
 
 
