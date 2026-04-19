@@ -1,0 +1,70 @@
+{
+  "sarah-@jess.styles": [
+    {
+      "id": "seed-ph-01",
+      "threadId": "sarah-@jess.styles",
+      "sender": "stylist",
+      "kind": "text",
+      "body": "Just saw Celia's wedding got moved up to next Saturday — are you still in for the rooftop after-party? Going to start pulling pieces either way.",
+      "createdAt": "2026-04-16T14:22:00Z"
+    },
+    {
+      "id": "seed-ph-02",
+      "threadId": "sarah-@jess.styles",
+      "sender": "client",
+      "kind": "text",
+      "body": "Yes! Flying back Thursday. I keep circling that Cecilie bow dress I bought in August — is it too much for DUMBO on a rooftop?",
+      "createdAt": "2026-04-16T15:07:00Z"
+    },
+    {
+      "id": "seed-ph-03",
+      "threadId": "sarah-@jess.styles",
+      "sender": "stylist",
+      "kind": "text",
+      "body": "It's beautiful but the volume will fight the wind up there. Let me put two options together — something softer for the rooftop, and we keep the Cecilie for the Chloé dinner Wednesday.",
+      "createdAt": "2026-04-17T10:44:00Z"
+    },
+    {
+      "id": "seed-ph-04",
+      "threadId": "sarah-@jess.styles",
+      "sender": "client",
+      "kind": "text",
+      "body": "Trust you completely. Also — press day Thursday at One WTC, I want to look like I've already been in the office for three hours. No photos of me looking surprised at Anna.",
+      "createdAt": "2026-04-17T11:02:00Z"
+    }
+  ],
+  "maya-@jess.styles": [
+    {
+      "id": "seed-so-01",
+      "threadId": "maya-@jess.styles",
+      "sender": "client",
+      "kind": "text",
+      "body": "Jess — I have the UN panel on the 27th. It's live on Web TV. Can we do something that reads 'serious climate finance' but isn't another black pantsuit?",
+      "createdAt": "2026-04-17T08:12:00Z"
+    },
+    {
+      "id": "seed-so-02",
+      "threadId": "maya-@jess.styles",
+      "sender": "stylist",
+      "kind": "text",
+      "body": "On it. I'm thinking the Khaite oxblood blouse under the Saint Laurent blazer, wide-leg ink trouser. Dark jewel tones read well on UN cameras — they run warm.",
+      "createdAt": "2026-04-17T09:03:00Z"
+    },
+    {
+      "id": "seed-so-03",
+      "threadId": "maya-@jess.styles",
+      "sender": "client",
+      "kind": "text",
+      "body": "Perfect. Same palette works for the Atlantic Council Thursday if we swap the blouse.",
+      "createdAt": "2026-04-17T09:18:00Z"
+    },
+    {
+      "id": "seed-so-04",
+      "threadId": "maya-@jess.styles",
+      "sender": "stylist",
+      "kind": "text",
+      "body": "Exactly what I was thinking. I'll send the full board by tonight — three looks, one for the panel, one for the briefing, one for Sarah Crowner's opening Friday.",
+      "createdAt": "2026-04-17T09:21:00Z"
+    }
+  ]
+}

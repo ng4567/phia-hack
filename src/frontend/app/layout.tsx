@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Instrument_Serif, Inter } from 'next/font/google';
 import './globals.css';
 import { TopBarFrame } from '@/components/TopBarFrame';
+import { ChatSyncProvider } from '@/components/chat/ChatSyncProvider';
 
 const serif = Instrument_Serif({
   weight: '400',
@@ -25,7 +26,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${serif.variable} ${sans.variable}`}>
       <body>
-        <TopBarFrame>{children}</TopBarFrame>
+        <ChatSyncProvider>
+          <TopBarFrame>{children}</TopBarFrame>
+        </ChatSyncProvider>
       </body>
     </html>
   );

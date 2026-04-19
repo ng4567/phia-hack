@@ -1,0 +1,17 @@
+{
+  "events": [
+    {
+      "id": "evt-so-out-01",
+      "title": "Atlantic Council briefing",
+      "category": "professional",
+      "start": "2026-04-30T15:00:00Z",
+      "end": "2026-04-30T16:30:00Z",
+      "location": "Atlantic Council DC office (remote joining from NY)",
+      "dress_code": "business formal",
+      "weather_hint": "indoor, dry",
+      "style_keywords": ["sharp-suiting", "neutral", "authoritative"],
+      "notes": "Closed-door briefing on COP30 prep. Video on; upper body only visible.",
+      "source": "outlook"
+    }
+  ]
+}

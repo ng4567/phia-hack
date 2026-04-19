@@ -1,0 +1,78 @@
+{
+  "garments": [
+    {
+      "id": "cg-so-01",
+      "name": "Emerald Column Dress",
+      "brand": "Brandon Maxwell",
+      "category": "one-piece",
+      "imageUrl": "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=600&h=800&fit=crop",
+      "purchasedAt": "2025-11-12",
+      "retailPriceAtPurchase": 2490,
+      "source": "gmail",
+      "sourceEmailSubject": "Brandon Maxwell — your order has shipped",
+      "sourceRetailer": "Brandon Maxwell"
+    },
+    {
+      "id": "cg-so-02",
+      "name": "Sharp-Shoulder Blazer in Black",
+      "brand": "Saint Laurent",
+      "category": "outerwear",
+      "imageUrl": "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=600&h=800&fit=crop",
+      "purchasedAt": "2025-09-25",
+      "retailPriceAtPurchase": 2950,
+      "source": "gmail",
+      "sourceEmailSubject": "Saint Laurent — Order #YSL-40188",
+      "sourceRetailer": "Saint Laurent"
+    },
+    {
+      "id": "cg-so-03",
+      "name": "Oxblood Silk Blouse",
+      "brand": "Khaite",
+      "category": "top",
+      "imageUrl": "https://images.unsplash.com/photo-1551048632-24e444b48a3e?w=600&h=800&fit=crop",
+      "purchasedAt": "2025-12-02",
+      "retailPriceAtPurchase": 1280,
+      "source": "gmail",
+      "sourceEmailSubject": "Khaite — Order confirmation",
+      "sourceRetailer": "Khaite"
+    }
+  ],
+  "emails": [
+    {
+      "id": "eml-so-01",
+      "subject": "Brandon Maxwell — your order has shipped",
+      "from": "orders@brandonmaxwell.com",
+      "received_at": "2025-11-12T15:30:00Z",
+      "retailer": "Brandon Maxwell",
+      "order_total": 2490,
+      "garment_ids": ["cg-so-01"]
+    },
+    {
+      "id": "eml-so-02",
+      "subject": "Saint Laurent — Order #YSL-40188",
+      "from": "customercare@ysl.com",
+      "received_at": "2025-09-25T11:42:00Z",
+      "retailer": "Saint Laurent",
+      "order_total": 2950,
+      "garment_ids": ["cg-so-02"]
+    },
+    {
+      "id": "eml-so-03",
+      "subject": "Khaite — Order confirmation",
+      "from": "hello@khaite.com",
+      "received_at": "2025-12-02T18:15:00Z",
+      "retailer": "Khaite",
+      "order_total": 1280,
+      "garment_ids": ["cg-so-03"]
+    },
+    {
+      "id": "eml-so-04",
+      "subject": "Matches Fashion — Shipped",
+      "from": "service@matchesfashion.com",
+      "received_at": "2025-10-14T09:22:00Z",
+      "retailer": "Matches Fashion",
+      "order_total": 865,
+      "garment_ids": []
+    }
+  ]
+}
