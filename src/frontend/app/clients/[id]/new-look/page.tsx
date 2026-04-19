@@ -28,6 +28,20 @@ const BACKEND_BASE_URL = getBackendBaseUrl();
 const PHOEBE_CLIENT_ID = 'sarah';
 const PHOEBE_LOOK_ID = 'look-sarah-1';
 const RED_AIKO_SILK_SLIP_DRESS_ID = 'g1';
+const AIKO_DRESS_IMAGE_PATH = '/data/female/dress.jpg';
+const TRY_ON_SUPPORTED_CATEGORIES = new Set<Garment['category']>([
+  'one-piece',
+  'top',
+  'outerwear',
+  'bottom',
+]);
+
+function pickTryOnGarment(garments: Garment[]): Garment | null {
+  const latestSupported = [...garments]
+    .reverse()
+    .find((garment) => TRY_ON_SUPPORTED_CATEGORIES.has(garment.category));
+  return latestSupported ?? garments.at(-1) ?? null;
+}
 
 async function toUploadFile(imageUrl: string, filename: string): Promise<File> {
   const response = await fetch(imageUrl);
@@ -97,19 +111,27 @@ export default function LookBuilder() {
         );
       }
 
-      const dress = getGarment(RED_AIKO_SILK_SLIP_DRESS_ID);
-      if (!dress) throw new Error('Aiko Silk Slip Dress is unavailable.');
+      const tryOnGarment = pickTryOnGarment(boardGarments);
+      if (!tryOnGarment) {
+        throw new Error('Add at least one garment to generate a try-on.');
+      }
 
       const personImageUrl = client.id === PHOEBE_CLIENT_ID
         ? `${window.location.origin}/clients/phoebe.png`
         : new URL(client.photoUrl, window.location.origin).toString();
-      const dressImageUrl = client.id === PHOEBE_CLIENT_ID
-        ? `${window.location.origin}/garments/red-aiko-silk-slip-dress.jpg`
-        : new URL(dress.imageUrl, window.location.origin).toString();
+      const usesPhoebeAikoAsset =
+        client.id === PHOEBE_CLIENT_ID && tryOnGarment.id === RED_AIKO_SILK_SLIP_DRESS_ID;
+      const dressImageUrl = usesPhoebeAikoAsset
+        ? `${BACKEND_BASE_URL}${AIKO_DRESS_IMAGE_PATH}`
+        : new URL(tryOnGarment.imageUrl, window.location.origin).toString();
+      const personFilename = client.id === PHOEBE_CLIENT_ID ? 'phoebe.png' : `${client.id}.png`;
+      const dressFilename = usesPhoebeAikoAsset
+        ? 'dress.jpg'
+        : `${tryOnGarment.id}.jpg`;
 
       const [personFile, dressFile] = await Promise.all([
-        toUploadFile(personImageUrl, 'phoebe.png'),
-        toUploadFile(dressImageUrl, 'aiko-silk-slip-dress.jpg'),
+        toUploadFile(personImageUrl, personFilename),
+        toUploadFile(dressImageUrl, dressFilename),
       ]);
 
       const formData = new FormData();

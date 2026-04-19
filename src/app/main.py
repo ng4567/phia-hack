@@ -14,6 +14,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 load_dotenv(REPO_ROOT / ".env")
 
 STATIC_DIR = Path(__file__).parent / "static"
+DATA_DIR = Path(__file__).parent / "data"
 
 app = FastAPI(title="Style-Me Virtual Try-On")
 frontend_origins_env = os.environ.get("FRONTEND_ORIGINS")
@@ -69,6 +70,9 @@ async def api_tryon(
 
 if STATIC_DIR.is_dir():
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+if DATA_DIR.is_dir():
+    app.mount("/data", StaticFiles(directory=DATA_DIR), name="data")
 
 
 @app.get("/")
