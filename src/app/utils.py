@@ -262,8 +262,13 @@ async def virtual_tryon(
     """Run a fal.ai FASHN try-on and return output image URLs."""
     api_key = os.environ.get("FAL_KEY")
     if not api_key:
+        api_key = os.environ.get("FASHN_API_KEY") or os.environ.get("FASHN-API-KEY")
+        if api_key:
+            # fal_client reads auth from FAL_KEY, so normalize legacy names.
+            os.environ["FAL_KEY"] = api_key
+    if not api_key:
         raise RuntimeError(
-            "Missing FAL key. Set FAL_KEY in your environment."
+            "Missing FAL key. Set FAL_KEY (or FASHN_API_KEY) in your environment."
         )
 
     model_image_path = Path(person_path)

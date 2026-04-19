@@ -256,8 +256,11 @@ function LookBuilderInner() {
       }
 
       if (lastOkIndex === -1) {
+        const firstFailed = results.find((r) => r.status === 'failed');
         setGenerating(false);
-        setGenerateError('Generation failed before any step completed.');
+        setGenerateError(
+          firstFailed?.error || 'Generation failed before any step completed.',
+        );
         return;
       }
 

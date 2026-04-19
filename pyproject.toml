@@ -28,6 +28,11 @@ package = true
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+]
+
 [tool.uv.workspace]
 members = [
     "src/backend/style-me",

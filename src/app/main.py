@@ -57,9 +57,9 @@ if frontend_origins_env:
         for origin in frontend_origins_env.split(",")
         if origin.strip()
     ]
-elif os.environ.get("ENV", "development").lower() == "development":
-    # Dev: allow any localhost/127.0.0.1 port so Next.js port fallbacks
-    # (3000 → 3001 → 3002 …) work without editing .env each time.
+elif os.environ.get("ENV", "development").lower() != "production":
+    # Non-production: allow any localhost/127.0.0.1 port so Next.js port
+    # fallbacks (3000 → 3001 → 3002 …) work without editing .env each time.
     allow_origin_regex = r"^http://(localhost|127\.0\.0\.1):\d+$"
 
 if allow_origins or allow_origin_regex:
