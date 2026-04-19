@@ -12,19 +12,71 @@ import type { Garment } from '@/lib/mock';
 import { Icon } from '@/components/Icon';
 import { SavingsBadge } from '@/components/SavingsBadge';
 import { GenerateOverlay } from '@/components/builder/GenerateOverlay';
+import type { StepStatus } from '@/components/builder/GenerateOverlay';
+
+function getBackendBaseUrl(): string {
+  const configured = process.env.NEXT_PUBLIC_TRYON_BACKEND_URL?.trim();
+  if (configured) {
+    return new URL(configured).toString().replace(/\/+$/, '');
+  }
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('NEXT_PUBLIC_TRYON_BACKEND_URL must be set in production.');
+  }
+  return 'http://127.0.0.1:8000';
+}
+
+const BACKEND_BASE_URL = getBackendBaseUrl();
+const PHOEBE_CLIENT_ID = 'sarah';
+const PHOEBE_LOOK_ID = 'look-sarah-1';
+const RED_AIKO_SILK_SLIP_DRESS_ID = 'g1';
+const AIKO_DRESS_IMAGE_PATH = '/data/female/dress.jpg';
+const MAX_CHAIN_LENGTH = 3;
+
+// Deterministic chain ordering:
+// - one-piece wins (if any) → [most-recent one-piece]
+// - else → [most-recent bottom?, most-recent top?]
+// - append most-recent outerwear (if any)
+// - drop shoes + accessories
+// - cap at 3
+function buildChain(boardGarments: Garment[]): Garment[] {
+  const latestOf = (cat: Garment['category']): Garment | undefined =>
+    [...boardGarments].reverse().find((g) => g.category === cat);
+
+  const onePiece = latestOf('one-piece');
+  const base: Garment[] = onePiece
+    ? [onePiece]
+    : ([latestOf('bottom'), latestOf('top')].filter(Boolean) as Garment[]);
+
+  const outer = latestOf('outerwear');
+  const chain = outer ? [...base, outer] : base;
+  return chain.slice(0, MAX_CHAIN_LENGTH);
+}
+
+async function toUploadFile(imageUrl: string, filename: string): Promise<File> {
+  const response = await fetch(imageUrl);
+  if (!response.ok) throw new Error(`Failed to fetch image for upload: ${filename}`);
+  const blob = await response.blob();
+  return new File([blob], filename, { type: blob.type || 'application/octet-stream' });
+}
 
 export default function LookBuilder() {
   const router = useRouter();
   const { id } = useParams<{ id: string }>();
   const client = getClient(id);
 
-  const [boardIds, setBoardIds] = useState<string[]>(['g1', 'g3', 'g13']);
+  const [boardIds, setBoardIds] = useState<string[]>(['g16', 'g3', 'g13']);
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('all');
   const [occasion, setOccasion] = useState('Rooftop engagement party');
   const [generating, setGenerating] = useState(false);
-  const [loadingStep, setLoadingStep] = useState(0);
+  const [generateError, setGenerateError] = useState<string | null>(null);
   const [dragId, setDragId] = useState<string | null>(null);
+
+  // Chain progress state — real, not faked.
+  const [chainGarments, setChainGarments] = useState<Garment[]>([]);
+  const [activeStepIndex, setActiveStepIndex] = useState(0);
+  const [stepStatuses, setStepStatuses] = useState<StepStatus[]>([]);
+  const [latestIntermediateUrl, setLatestIntermediateUrl] = useState<string | undefined>(undefined);
 
   if (!client) return null;
 
@@ -56,15 +108,138 @@ export default function LookBuilder() {
     setBoardIds(boardIds.filter((x) => x !== gid));
   }
 
-  function handleGenerate() {
-    setGenerating(true);
-    setLoadingStep(0);
-    const steps = [0, 1, 2, 3];
-    steps.forEach((s, i) => setTimeout(() => setLoadingStep(s), i * 1100));
-    setTimeout(() => {
+  async function handleGenerate() {
+    if (!client) return;
+    setGenerateError(null);
+
+    try {
+      const backendOrigin = new URL(BACKEND_BASE_URL).origin;
+      if (window.location.origin === backendOrigin) {
+        throw new Error(
+          'Set NEXT_PUBLIC_TRYON_BACKEND_URL to your backend address (different from frontend).',
+        );
+      }
+
+      const chain = buildChain(boardGarments);
+      if (chain.length === 0) {
+        throw new Error('Add a supported piece (top, bottom, one-piece, or outerwear) to generate a try-on.');
+      }
+
+      // Build the person file the same way as today (Phoebe special case).
+      const personImageUrl = client.id === PHOEBE_CLIENT_ID
+        ? `${window.location.origin}/clients/phoebe.png`
+        : new URL(client.photoUrl, window.location.origin).toString();
+      const personFilename = client.id === PHOEBE_CLIENT_ID ? 'phoebe.png' : `${client.id}.png`;
+
+      // Initialize chain-progress state.
+      const initialStatuses: StepStatus[] = chain.map(() => 'pending');
+      setChainGarments(chain);
+      setActiveStepIndex(0);
+      setStepStatuses(initialStatuses);
+      setLatestIntermediateUrl(undefined);
+      setGenerating(true);
+
+      // Local mirrors — React state updates are async but we need the latest
+      // values for subsequent iterations of this loop.
+      const statuses: StepStatus[] = [...initialStatuses];
+      const results: Array<{ garment: Garment; status: StepStatus; imageUrl?: string; error?: string }> =
+        chain.map((g) => ({ garment: g, status: 'pending' as StepStatus }));
+
+      let personFileForStep: File | undefined = await toUploadFile(personImageUrl, personFilename);
+      let personUrlForStep: string | undefined;
+
+      for (let i = 0; i < chain.length; i++) {
+        const g = chain[i];
+        setActiveStepIndex(i);
+
+        const usesPhoebeAikoAsset =
+          client.id === PHOEBE_CLIENT_ID && g.id === RED_AIKO_SILK_SLIP_DRESS_ID;
+        const dressImageUrl = usesPhoebeAikoAsset
+          ? `${BACKEND_BASE_URL}${AIKO_DRESS_IMAGE_PATH}`
+          : new URL(g.imageUrl, window.location.origin).toString();
+        const dressFilename = usesPhoebeAikoAsset ? 'dress.jpg' : `${g.id}.jpg`;
+
+        try {
+          const dressFile = await toUploadFile(dressImageUrl, dressFilename);
+
+          const formData = new FormData();
+          formData.append('clothes', dressFile);
+          if (i === 0) {
+            if (!personFileForStep) throw new Error('Missing person image for step 0.');
+            formData.append('person', personFileForStep);
+          } else {
+            if (!personUrlForStep) throw new Error('Missing person_url for chained step.');
+            formData.append('person_url', personUrlForStep);
+          }
+
+          const response = await fetch(`${BACKEND_BASE_URL}/api/tryon`, {
+            method: 'POST',
+            body: formData,
+          });
+          const responseText = await response.text();
+          let payload: { detail?: string; outputs?: string[] } = {};
+          if (responseText) {
+            try {
+              payload = JSON.parse(responseText) as { detail?: string; outputs?: string[] };
+            } catch {
+              payload = { detail: responseText };
+            }
+          }
+          if (!response.ok) {
+            throw new Error(payload.detail || 'Try-on request failed.');
+          }
+          const outputUrl = payload.outputs?.[0];
+          if (!outputUrl) {
+            throw new Error('Try-on API returned no output image.');
+          }
+
+          results[i] = { garment: g, status: 'ok', imageUrl: outputUrl };
+          statuses[i] = 'ok';
+          setStepStatuses([...statuses]);
+          setLatestIntermediateUrl(outputUrl);
+
+          personUrlForStep = outputUrl;
+          personFileForStep = undefined;
+        } catch (err) {
+          const message = err instanceof Error ? err.message : String(err);
+          results[i] = { garment: g, status: 'failed', error: message };
+          statuses[i] = 'failed';
+          for (let j = i + 1; j < chain.length; j++) {
+            results[j] = { garment: chain[j], status: 'skipped' };
+            statuses[j] = 'skipped';
+          }
+          setStepStatuses([...statuses]);
+          break;
+        }
+      }
+
+      // Find the last successful step.
+      let lastOkIndex = -1;
+      for (let i = results.length - 1; i >= 0; i--) {
+        if (results[i].status === 'ok') { lastOkIndex = i; break; }
+      }
+
+      if (lastOkIndex === -1) {
+        setGenerating(false);
+        setGenerateError('Generation failed before any step completed.');
+        return;
+      }
+
+      const finalUrl = results[lastOkIndex].imageUrl!;
+      const chainIds = chain.map((g) => g.id).join(',');
+      const failed = results.find((r) => r.status === 'failed');
+      const failedParam = failed
+        ? `&failedId=${encodeURIComponent(failed.garment.id)}`
+        : '';
       setGenerating(false);
-      router.push('/looks/look-sarah-1');
-    }, 4800);
+      router.push(
+        `/looks/${PHOEBE_LOOK_ID}?tryOnImageUrl=${encodeURIComponent(finalUrl)}&chainIds=${encodeURIComponent(chainIds)}${failedParam}`,
+      );
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to generate try-on.';
+      setGenerateError(message);
+      setGenerating(false);
+    }
   }
 
   return (
@@ -87,11 +262,16 @@ export default function LookBuilder() {
               placeholder="Occasion or prompt — rooftop wedding, July, Charleston"
             />
             <button className="btn btn-ghost" onClick={() => router.push(`/clients/${id}`)}>Save draft</button>
-            <button className="btn btn-primary" onClick={handleGenerate} disabled={boardIds.length === 0}>
+            <button className="btn btn-primary" onClick={() => void handleGenerate()} disabled={boardIds.length === 0 || generating}>
               <Icon.spark /> Generate try-on
             </button>
           </div>
         </div>
+        {generateError && (
+          <div className="micro" style={{ color: '#b00020', marginBottom: 12 }}>
+            {generateError}
+          </div>
+        )}
 
         <div className="builder-grid">
           {/* LEFT: catalog */}
@@ -208,7 +388,15 @@ export default function LookBuilder() {
         </div>
 
         {/* Generating overlay */}
-        {generating && <GenerateOverlay client={client} step={loadingStep} />}
+        {generating && (
+          <GenerateOverlay
+            client={client}
+            chainGarments={chainGarments}
+            activeStep={activeStepIndex}
+            stepStatuses={stepStatuses}
+            latestIntermediateUrl={latestIntermediateUrl}
+          />
+        )}
       </div>
 
       <style jsx>{`
