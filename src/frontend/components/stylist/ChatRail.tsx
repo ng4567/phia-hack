@@ -20,15 +20,16 @@
 // actual portal — the fixed-position scrim pulls it out of the rail's
 // flow anyway). The overlay manages its own fetch lifecycle.
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
-import { threadIdFor } from '@/lib/chatStore';
-import { MOCK, type Client } from '@/lib/mock';
+import { threadIdFor, useChatStore } from '@/lib/chatStore';
+import { MOCK, getLook, type Client } from '@/lib/mock';
 import { ChatThread } from '@/components/chat/ChatThread';
 import { ChatComposer } from '@/components/chat/ChatComposer';
 import { Icon } from '@/components/Icon';
 
 import { AIBriefOverlay } from './AIBriefOverlay';
+import { LookPickerPopover } from './LookPickerPopover';
 
 export interface ChatRailProps {
   client: Client;
@@ -36,6 +37,8 @@ export interface ChatRailProps {
 
 export function ChatRail({ client }: ChatRailProps) {
   const [briefOpen, setBriefOpen] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const composerAreaRef = useRef<HTMLDivElement>(null);
   const threadId = threadIdFor(client.id, MOCK.stylist.handle);
   const firstName = client.name.split(' ')[0];
 
@@ -75,8 +78,34 @@ export function ChatRail({ client }: ChatRailProps) {
         </button>
       </div>
 
-      <div className="cr-composer">
+      <div className="cr-composer" ref={composerAreaRef}>
         <ChatComposer threadId={threadId} sender="stylist" />
+        <button
+          type="button"
+          className="cr-look-btn"
+          onClick={() => setPickerOpen((v) => !v)}
+          aria-label="Share a saved look"
+          aria-expanded={pickerOpen}
+        >
+          <Icon.grid />
+        </button>
+        {pickerOpen && (
+          <LookPickerPopover
+            clientId={client.id}
+            onPick={(lookId) => {
+              const look = getLook(lookId);
+              useChatStore.getState().postMessage({
+                threadId,
+                sender: 'stylist',
+                kind: 'look-share',
+                lookId,
+                body: look?.occasion ?? 'Shared a look',
+              });
+              setPickerOpen(false);
+            }}
+            onClose={() => setPickerOpen(false)}
+          />
+        )}
       </div>
 
       <AIBriefOverlay
@@ -204,7 +233,30 @@ export function ChatRail({ client }: ChatRailProps) {
           color: var(--ink-3);
         }
 
-        .cr-composer { /* ChatComposer brings its own top border */ }
+        .cr-composer {
+          /* ChatComposer brings its own top border */
+          position: relative;
+        }
+        .cr-look-btn {
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          z-index: 2;
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          background: transparent;
+          color: var(--ink-3);
+          transition: background .18s ease, color .18s ease;
+        }
+        .cr-look-btn:hover {
+          background: var(--bg-sub);
+          color: var(--ink);
+        }
+        .cr-look-btn:active { background: var(--bg); }
       `}</style>
     </aside>
   );
