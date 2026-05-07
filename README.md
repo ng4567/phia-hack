@@ -4,6 +4,10 @@ Style-Me is a simple web-app made to make it easy for stylists to manage a portf
 
 Using the FASHN Virtual Try-On API, we can return images of the clothes styled on someone's body given their picture and pictures of the clothes.
 
+# Demo
+
+[Demo Link](https://drive.google.com/file/d/1asMueLT53wBaXiry_rfYXuYn_FX7dLKJ/view?usp=sharing)
+
 # Architecture
 
 - Frontend: React
